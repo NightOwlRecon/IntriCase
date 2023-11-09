@@ -689,6 +689,7 @@ dependencies = [
  "anyhow",
  "argon2",
  "axum",
+ "dotenvy",
  "sqlx",
  "tracing",
  "tracing-subscriber",
