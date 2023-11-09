@@ -1,0 +1,14 @@
+[package]
+name = "intricase"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.75"
+argon2 = "0.5.2"
+axum = { version = "0.6.20", features = [ "form", "http1", "http2", "json", "macros", "multipart", "query", "tokio", "tower-log", "tracing" ] }
+sqlx = { version = "0.7", features = [ "macros", "migrate", "postgres", "runtime-tokio", "tls-rustls", "uuid" ] }
+tracing = "0.1.40"
+tracing-subscriber = "0.3.17"
