@@ -6,15 +6,25 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.77"
+anyhow = "1.0.79"
 argon2 = "0.5.2"
-axum = { version = "0.7.2", features = ["form", "http1", "http2", "json", "macros", "multipart", "query", "tokio", "tower-log", "tracing"] }
+axum = { version = "0.7.3", features = ["form", "http1", "http2", "json", "macros", "multipart", "query", "tokio", "tower-log", "tracing"] }
+axum-extra = { version = "0.9.1", features = ["async-read-body", "cookie", "cookie-key-expansion", "cookie-private", "cookie-signed", "form", "multipart", "query"] }
+chrono = { version = "0.4.31", features = ["serde"] }
 dotenvy = "0.15.7"
-sqlx = { version = "0.7.3", features = ["macros", "migrate", "postgres", "runtime-tokio", "tls-rustls", "uuid"] }
+handlebars = { version = "5.0.0", features = ["dir_source"] }
+lettre = { version = "0.11.3", default-features = false, features = ["builder", "rustls-tls", "smtp-transport", "tokio1", "tokio1-rustls-tls", "tracing"] }
+serde = "1.0.194"
+serde_json = "1.0.110"
+sqlx = { version = "0.7.3", features = ["chrono", "macros", "migrate", "postgres", "runtime-tokio", "tls-rustls", "uuid"] }
+time = "0.3.31"
 tokio = { version = "1.35.1", features = ["full"] }
-tower-http = { version = "0.5.0", features = ["cors"] }
+tower = "0.4.13"
+tower-http = { version = "0.5.0", features = ["cors", "fs", "trace"] }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
+url = "2.5.0"
+uuid = { version = "1.6.1", features = ["v4", "macro-diagnostics", "serde", "v7"] }
 
 [profile.dev.package.sqlx-macros]
 # speed up incremental compile-time sql checks
