@@ -6,9 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.77"
+anyhow = "1.0.78"
 argon2 = "0.5.2"
-axum = { version = "0.7.2", features = ["form", "http1", "http2", "json", "macros", "multipart", "query", "tokio", "tower-log", "tracing"] }
+axum = { version = "0.7.3", features = ["form", "http1", "http2", "json", "macros", "multipart", "query", "tokio", "tower-log", "tracing"] }
 dotenvy = "0.15.7"
 sqlx = { version = "0.7.3", features = ["macros", "migrate", "postgres", "runtime-tokio", "tls-rustls", "uuid"] }
 tokio = { version = "1.35.1", features = ["full"] }
