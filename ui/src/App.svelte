@@ -1,25 +1,41 @@
 <script lang="ts">
-    import {
-        Button,
-        Input,
-        Label,
-    } from 'flowbite-svelte';
+	import { TabItem, Tabs } from 'flowbite-svelte';
+
+	import NavBar from './NavBar.svelte';
+	import UserActivate from './users/Activate.svelte';
+	import Users from './admin/Users.svelte';
+
+	import { cookieValue, handleUriPath } from './helpers';
+
+	let uriPath = handleUriPath();
+	window.addEventListener('hashchange', function () {
+		uriPath = handleUriPath();
+	});
+
+	let userDetails;
+
+	const getUserDetailsFromCookie = () => {
+		const cookie = cookieValue('user_details');
+		if (!cookie) return;
+
+		userDetails = JSON.parse(cookie);
+		console.log(userDetails);
+	};
+
+	getUserDetailsFromCookie();
 </script>
 
 <main>
-    <form action="/login">
-			<div class="mb-6">
-        <Label for="email">Email</Label>
-        <Input placeholder="email" name="email"></Input>
-			</div>
-			<div class="mb-6">
-        <Label for="password">Password</Label>
-        <Input placeholder="password" name="password" type="password"></Input>
-			</div>
-			<div class="mb-6">
-        <Button type="submit" color="blue">Log In</Button>
-			</div>
-    </form>
+	<NavBar {userDetails} on:change={getUserDetailsFromCookie} />
+	{#if uriPath[0] === 'activateAccount'}
+		<UserActivate path={uriPath} />
+	{:else if uriPath[0] === 'admin'}
+		<Tabs>
+			<TabItem open title="Users">
+				<Users />
+			</TabItem>
+		</Tabs>
+	{/if}
 </main>
 
 <style>
