@@ -1,18 +1,22 @@
-use anyhow::Result;
-use axum::extract::State;
-use chrono::{DateTime, Utc};
+use anyhow::{Error, Result};
+use axum::extract::{Request, State};
+use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool};
 use tokio::sync::RwLock;
-use tracing::*;
-use url::Url;
 use uuid::Uuid;
 
+use axum::middleware::Next;
+use axum::response::{IntoResponse, Redirect};
+use axum_extra::extract::{cookie::Cookie, CookieJar};
 use std::collections::HashMap;
 use std::sync::Arc;
+use tracing::warn;
 
-use crate::core::{crypto, helpers};
+use crate::core::crypto;
 use crate::AppState;
+
+use super::sessions::Session;
 
 // Here we've implemented `Debug` manually to avoid accidentally logging the
 // password hash or otp code
@@ -52,6 +56,40 @@ pub struct User {
 }
 
 impl User {
+    pub async fn get_by_email(State(state): State<AppState>, email: &str) -> Result<User> {
+        let user = sqlx::query_as!(User, "SELECT * FROM users WHERE email = $1", email)
+            .fetch_one(&state.db)
+            .await?;
+        Ok(user)
+    }
+
+    pub async fn get_by_id(State(state): State<AppState>, id: &str) -> Result<User> {
+        let user = sqlx::query_as!(
+            User,
+            "SELECT * FROM users WHERE id = $1",
+            Uuid::parse_str(id)?
+        )
+        .fetch_one(&state.db)
+        .await?;
+        Ok(user)
+    }
+
+    pub fn is_active(&self) -> bool {
+        self.enabled
+    }
+
+    pub fn otp_is_valid(&self) -> bool {
+        if let Some(otp_date) = self.otp_date {
+            // TODO: load settings like this into AppState
+            if let Ok(hours) = std::env::var("OTP_DURATION_HOURS") {
+                if let Ok(hours_int) = hours.parse::<i64>() {
+                    return otp_date > Utc::now() - Duration::hours(hours_int);
+                }
+            }
+        }
+        false
+    }
+
     pub async fn create(db: &PgPool, email: &str) -> Result<User> {
         let now = Utc::now();
         let user = sqlx::query_as!(
@@ -97,8 +135,32 @@ impl User {
         Ok(())
     }
 
+    pub async fn log_in(&self, State(state): State<AppState>, password: &str) -> Result<Session> {
+        // validate password
+        if self.enabled && self.validate_password(password) {
+            return self.create_session(State(state)).await;
+        }
+        Err(Error::msg("Invalid password or disabled account"))
+    }
+
+    fn validate_password(&self, password: &str) -> bool {
+        if let Some(hash) = &self.secret {
+            // we have a value in the secret field
+            if let Ok(is_valid) = crypto::validate_hash(hash, password) {
+                // the hash parsed properly
+                // return whether the plaintext is valid for the given hash or not
+                return is_valid;
+            }
+        }
+        false
+    }
+
+    async fn create_session(&self, State(state): State<AppState>) -> Result<Session> {
+        Session::create(State(state), self.clone()).await
+    }
+
     pub async fn set_password(&self, db: &PgPool, password: &str) -> Result<()> {
-        let hash = crypto::hash_password(password).unwrap();
+        let hash = crypto::hash_password(password)?;
         sqlx::query!(
             r#"UPDATE users SET secret = $1 WHERE id = $2"#,
             hash,
@@ -110,27 +172,25 @@ impl User {
         Ok(())
     }
 
-    pub async fn reset(db: &PgPool, challenge_otp: &str, new_password: &str) {
-        let user = sqlx::query_as!(User, r#"SELECT * FROM users WHERE otp = $1"#, challenge_otp)
-            .fetch_one(db)
-            .await
-            .unwrap();
-        if let (Some(otp), Some(date)) = (&user.otp, &user.otp_date) {
+    pub async fn reset(
+        &mut self,
+        State(state): State<AppState>,
+        challenge_otp: &str,
+        new_password: &str,
+    ) -> Result<()> {
+        if let (Some(otp), Some(otp_date)) = (&self.otp, &self.otp_date) {
             // TODO: validate OTP date
-            user.set_password(db, new_password).await.unwrap();
+            if otp == challenge_otp {
+                //&& otp_date > &Utc::now() {
+                return self.set_password(&state.db, new_password).await;
+            }
         }
+        Err(Error::msg(""))
     }
 }
 
-pub async fn get_all(db: &PgPool) -> Result<HashMap<Uuid, Arc<RwLock<User>>>> {
-    let mut users_map = HashMap::<Uuid, Arc<RwLock<User>>>::new();
-    let users = sqlx::query_as!(User, "SELECT * FROM users")
+pub async fn get_all(db: &PgPool) -> Result<Vec<User>, sqlx::Error> {
+    sqlx::query_as!(User, "SELECT * FROM users")
         .fetch_all(db)
-        .await?;
-    for user in users {
-        // TODO: I don't like us creating the Arc/RwLock here but nothing else is calling this at
-        // the moment so we might as well
-        users_map.insert(user.id, Arc::new(RwLock::new(user)));
-    }
-    Ok(users_map)
+        .await
 }

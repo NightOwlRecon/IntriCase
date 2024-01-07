@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Error, Result};
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Algorithm, Argon2, Params, ParamsBuilder, Version,
@@ -23,24 +23,39 @@ fn argon2_params() -> Result<Params, argon2::password_hash::Error> {
     Ok(params)
 }
 
-pub fn hash_password(password: &str) -> Result<String, argon2::password_hash::Error> {
+pub fn hash_password(password: &str) -> Result<String> {
     let salt = SaltString::generate(&mut OsRng);
-    let argon2 = get_argon2()?;
-    let password_hash = argon2
-        .hash_password(password.as_bytes(), &salt)?
-        .to_string();
-    Ok(password_hash)
+    // we consume argon2 errors here because they don't play nicely with anyhow
+    if let Ok(argon2) = get_argon2() {
+        if let Ok(password_hash) = argon2.hash_password(password.as_bytes(), &salt) {
+            return Ok(password_hash.to_string());
+        }
+    }
+    Err(Error::msg("Argon2 error"))
 }
 
-pub fn validate_hash(hash: &str, password: &str) -> Result<bool, argon2::password_hash::Error> {
-    let parsed_hash = PasswordHash::new(password)?;
-    let argon2 = get_argon2()?;
-    Ok(argon2
-        .verify_password(password.as_bytes(), &parsed_hash)
-        .is_ok())
+pub fn validate_hash(hash: &str, password: &str) -> Result<bool> {
+    // we consume argon2 errors here because they don't play nicely with anyhow
+    if let Ok(parsed_hash) = PasswordHash::new(hash) {
+        if let Ok(argon2) = get_argon2() {
+            return Ok(argon2
+                .verify_password(password.as_bytes(), &parsed_hash)
+                .is_ok());
+        }
+    } else {
+        // at least differentiate if the hash is unparseable (other conditions should be basically
+        // impossible to trigger)
+        return Err(Error::msg("Unable to parse Argon2 hash"));
+    }
+    Err(Error::msg("Argon2 error"))
 }
 
 pub fn gen_otp() -> String {
     // for now just use a random salt value that's base64-encoded
-    SaltString::generate(&mut OsRng).to_string()
+    // we replace some symbols that can cause issues in URLs with hyphens
+    // TODO: make this nicer and URL-safe
+    SaltString::generate(&mut OsRng)
+        .to_string()
+        .replace("+", "-")
+        .replace("/", "-")
 }
