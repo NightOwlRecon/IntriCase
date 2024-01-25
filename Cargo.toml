@@ -11,7 +11,7 @@ argon2 = "0.5.3"
 axum = { version = "0.7.4", features = ["form", "http1", "http2", "json", "macros", "multipart", "query", "tokio", "tower-log", "tracing"] }
 axum-casbin = { version = "0.1.1", features = ["tokio"] }
 axum-extra = { version = "0.9.2", features = ["async-read-body", "cookie", "cookie-key-expansion", "cookie-private", "cookie-signed", "form", "multipart", "query"] }
-chrono = { version = "0.4.32", features = ["serde"] }
+chrono = { version = "0.4.33", features = ["serde"] }
 dotenvy = "0.15.7"
 handlebars = { version = "5.1.1", features = ["dir_source"] }
 lettre = { version = "0.11.3", default-features = false, features = ["builder", "rustls-tls", "smtp-transport", "tokio1", "tokio1-rustls-tls", "tracing"] }
