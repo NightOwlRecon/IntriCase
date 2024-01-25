@@ -1,8 +1,9 @@
 use anyhow::Result;
 use handlebars::Handlebars;
-use lettre::transport::smtp::authentication::Credentials;
-use lettre::transport::smtp::response::Response;
-use lettre::{Message, SmtpTransport, Transport};
+use lettre::{
+    transport::smtp::{authentication::Credentials, response::Response},
+    Message, SmtpTransport, Transport,
+};
 
 pub fn get_mailer() -> Result<SmtpTransport> {
     Ok(SmtpTransport::relay(&std::env::var("SMTP_HOST")?)?
