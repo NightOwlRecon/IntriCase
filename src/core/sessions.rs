@@ -1,89 +1,100 @@
 use anyhow::Result;
+use axum::response::{IntoResponse, Redirect};
 use axum::{
     extract::{Request, State},
     middleware::Next,
-    response::Response,
 };
-use axum_extra::extract::cookie::{Cookie, Key, PrivateCookieJar};
+use axum_extra::extract::{cookie::Cookie, CookieJar, PrivateCookieJar};
 use chrono::{DateTime, Duration, Utc};
-use sqlx::PgPool;
 use uuid::{NoContext, Timestamp, Uuid};
-
-use std::collections::HashMap;
 
 use crate::{core::users::User, AppState};
 
 pub struct Session {
-    id: Uuid,
+    pub id: Uuid,
     user: Uuid,
     created: DateTime<Utc>,
 }
 
-fn get_oldest_session_age() -> Result<DateTime<Utc>> {
-    let days = std::env::var("SESSION_DURATION_DAYS")?;
-    let duration = Duration::days(days.parse::<i64>()?);
-    let now = Utc::now();
-    let oldest = now - duration;
-    Ok(oldest)
-}
-
-fn set_session_cookie(State(_state): State<AppState>, _jar: PrivateCookieJar) {}
-
-fn delete_session_cookie(State(_state): State<AppState>, _jar: PrivateCookieJar) {}
-
-pub async fn create_session(State(state): State<AppState>, user: User) -> Result<Session> {
-    let session = sqlx::query_as!(
-        Session,
-        r#"INSERT INTO sessions ("id", "user", "created") VALUES ($1, $2, $3) RETURNING *;"#,
-        Uuid::new_v7(Timestamp::now(NoContext)),
-        user.id,
-        Utc::now(),
-    )
-    .fetch_one(&state.db)
-    .await?;
-    Ok(session)
-}
-
-pub async fn validate_session(
-    State(state): State<AppState>,
-    jar: PrivateCookieJar,
-) -> Result<bool> {
-    if let Some(session_id) = jar.get("session") {
-        let uuid = Uuid::try_parse(session_id.value())?;
-        /*if let Some(session) = state.sessions.read().unwrap().get(&uuid) {
-            let is_valid_age = session.created >= get_oldest_session_age()?;
-            return Ok(is_valid_age);
-        }*/
+impl Session {
+    pub async fn get_by_id(State(state): State<AppState>, id: &str) -> Result<Session> {
+        let uuid = Uuid::try_parse(id)?;
+        let session = sqlx::query_as!(Session, r#"SELECT * FROM sessions WHERE id = $1"#, uuid)
+            .fetch_one(&state.db)
+            .await?;
+        Ok(session)
     }
-    Ok(false)
-}
 
-pub async fn get_sessions(db: &PgPool) -> Result<HashMap<Uuid, Session>> {
-    let sessions = sqlx::query_as!(Session, "SELECT * FROM sessions")
-        .fetch_all(db)
+    pub async fn create(State(state): State<AppState>, user: User) -> Result<Session> {
+        let session = sqlx::query_as!(
+            Session,
+            r#"INSERT INTO sessions ("id", "user", "created") VALUES ($1, $2, $3) RETURNING *;"#,
+            Uuid::new_v7(Timestamp::now(NoContext)),
+            user.id,
+            Utc::now(),
+        )
+        .fetch_one(&state.db)
         .await?;
-    let mut hashmap_sessions = HashMap::<Uuid, Session>::new();
-    for session in sessions {
-        hashmap_sessions.insert(session.id.clone(), session);
+        Ok(session)
     }
-    Ok(hashmap_sessions)
+
+    pub fn is_valid(&self) -> bool {
+        // TODO: load settings like this into AppState
+        if let Ok(days) = std::env::var("SESSION_DURATION_DAYS") {
+            if let Ok(days_int) = days.parse::<i64>() {
+                return self.created > Utc::now() - Duration::days(days_int);
+            }
+        }
+        false
+    }
+
+    pub async fn delete(&self, State(state): State<AppState>) -> Result<()> {
+        sqlx::query!("DELETE FROM sessions WHERE id = $1", self.id)
+            .execute(&state.db)
+            .await?;
+        Ok(())
+    }
 }
 
-impl Session {}
-
-async fn my_middleware(
+pub async fn session_layer(
     State(state): State<AppState>,
-    // you can add more extractors here but the last
-    // extractor must implement `FromRequest` which
-    // `Request` does
+    jar: CookieJar,
+    private_jar: PrivateCookieJar,
     request: Request,
     next: Next,
-) -> Response {
-    // do something with `request`...
-
-    let response = next.run(request).await;
-
-    // do something with `response`...
-
-    response
+) -> impl IntoResponse {
+    // TODO: see about simplifying these nested if statements
+    if let Some(session_id) = private_jar.get("session") {
+        // we have an encrypted session cookie
+        if let Ok(session) = Session::get_by_id(State(state.clone()), session_id.value()).await {
+            // the cookie corresponds to an existing session id
+            if session.is_valid() {
+                // the session is valid
+                if let Ok(user) =
+                    User::get_by_id(State(state.clone()), &session.user.to_string()).await
+                {
+                    // the user from the session exists
+                    if user.is_active() {
+                        // the user is active
+                        return (
+                            // TODO: update user data if anything has changed
+                            jar,
+                            private_jar,
+                            next.run(request).await,
+                        );
+                    }
+                }
+            } else {
+                // session isn't valid, go ahead and nuke it and redirect
+                session.delete(State(state.clone())).await.unwrap();
+                return (
+                    jar.remove(Cookie::from("user_details")),
+                    private_jar.remove(Cookie::from("session")),
+                    Redirect::temporary("/").into_response(),
+                );
+            }
+        }
+    }
+    // no session set, continue
+    (jar, private_jar, next.run(request).await)
 }

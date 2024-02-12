@@ -1,8 +1,15 @@
-use anyhow::Result;
+use anyhow::{Error, Result};
 use handlebars::Handlebars;
-use lettre::transport::smtp::authentication::Credentials;
-use lettre::transport::smtp::response::Response;
-use lettre::{Message, SmtpTransport, Transport};
+use lettre::{
+    transport::smtp::{authentication::Credentials, response::Response},
+    Message, SmtpTransport, Transport,
+};
+
+use std::collections::HashMap;
+
+pub fn smtp_enabled() -> bool {
+    (std::env::var("USE_SMTP").unwrap_or("false".to_string())).to_lowercase() == "true"
+}
 
 pub fn get_mailer() -> Result<SmtpTransport> {
     Ok(SmtpTransport::relay(&std::env::var("SMTP_HOST")?)?
@@ -17,9 +24,12 @@ pub async fn send_email(
     to: &str,
     template_file: &str,
     subject: &str,
-    values: &str,
+    values: HashMap<&str, &str>,
 ) -> Result<Response> {
     // TODO: use a global Handlebars instance and load all templates at start
+    if !smtp_enabled() {
+        return Err(Error::msg("SMTP is disabled"));
+    }
     let mut hb = Handlebars::new();
     hb.register_template_file("template", template_file)?;
     let output = hb.render_template("template", &values)?;
