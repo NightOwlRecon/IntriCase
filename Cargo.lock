@@ -242,9 +242,9 @@ dependencies = [
 
 [[package]]
 name = "axum-casbin"
-version = "0.1.1"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d336a5931df0defda7b2a1b23625ebfbf0bc939d367b63a2aeca13ab838de92f"
+checksum = "a1e9b52db84b5c5e7e9acedeac3e126c7db530db1aca03bab03ef3cc78747ed5"
 dependencies = [
  "axum 0.5.17",
  "bytes",
