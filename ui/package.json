@@ -17,7 +17,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@sveltejs/vite-plugin-svelte": "^3.0.2",
     "@tsconfig/svelte": "^5.0.0",
-    "autoprefixer": "^10.4.17",
+    "autoprefixer": "^10.4.18",
     "flowbite": "^2.3.0",
     "flowbite-svelte": "^0.44.24",
     "postcss": "^8.4.35",
