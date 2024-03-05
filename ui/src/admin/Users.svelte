@@ -2,7 +2,6 @@
 	import {
 		Button,
 		Dropdown,
-		Heading,
 		Input,
 		Label,
 		Table,
@@ -12,6 +11,8 @@
 		TableHead,
 		TableHeadCell,
 	} from 'flowbite-svelte';
+
+	import type { User } from '../typedefs';
 
 	import { Fa } from 'svelte-fa';
 	import { faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -23,13 +24,13 @@
 	const handleInviteUserForm = async (e: Event) => {
 		const res = await handleSubmitJson(e);
 		if (res && res.ok) {
-			getUsers();
+			await getUsers();
 		}
 	};
 
-	let users = [];
+	let users: User[] = [];
 	const getUsers = async () => {
-		const res = await fetch('/admin/users/list');
+		const res = await fetch('/api/admin/users/list');
 		if (res.ok) {
 			users = await res.json();
 		}
@@ -41,7 +42,11 @@
 <Button color="blue">Invite <Fa icon={faPlus} class="ml-3" pull="right" /></Button>
 <Dropdown class="m-4">
 	<!-- form defaults to multipart unless enctype is specified, making deserialization more painful on the backend -->
-	<form action="/admin/users/invite" method="POST" on:submit|preventDefault={handleInviteUserForm}>
+	<form
+		action="/api/admin/users/invite"
+		method="POST"
+		on:submit|preventDefault={handleInviteUserForm}
+	>
 		<div class="mb-6">
 			<Label for="email">Email</Label>
 			<Input placeholder="email" name="email" bind:value={inviteUserEmail}></Input>

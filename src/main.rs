@@ -6,7 +6,7 @@ use tracing::*;
 
 /// The `api` module takes HTTP requests and forwards them to the underlying functions in `core`,
 /// translating the results to HTTP responses and response codes. It also handles reading and
-/// writing cookies
+/// writing cookies, as well as additional server-side form validation
 mod api;
 
 /// The `core` module is where the "meat" of the application lives. Everything in this module that
@@ -39,29 +39,22 @@ async fn main() {
     let state = AppState { db, key };
 
     let app = Router::new()
-        .nest("/admin", api::admin::router())
-        .nest("/auth", api::auth::router())
-        //
-        // this should be the final router/service to catch all unmatched requests
-        // ServeDir actually looks for an index.html by default
-        //
-        // if necessary, we can serve index.html for all unmatched requests, or other specific
-        // requests instead of returning 404 for files that do not exist. this may be useful to
-        // allow users to bookmark the app with certain interface tabs active and that sort of thing.
-        // this can be accomplished by calling .fallback() on ServeDir and using ServeFile in the call.
-        .fallback_service(ServeDir::new("ui/dist"))
-        //
-        // we validate all of our sessions with each request because the root page needs the user
-        // details cookie to be set and whatnot. for a handful of static assets this is unnecessary
-        // but for now this additional overhead is likely trivial
+        .nest("/api/admin", api::admin::router())
+        .nest("/api/investigations", api::investigations::router())
         .layer(axum::middleware::from_fn_with_state(
             state.clone(),
             core::sessions::session_layer,
         ))
+        //
+        // ROUTES BELOW THIS LINE ARE UNAUTHENTICATED
+        //
+        .nest("/api/auth", api::auth::router())
         .with_state(state)
+        .fallback_service(ServeDir::new("ui/dist"))
         // trace layer is last to catch *everything*
         .layer(TraceLayer::new_for_http());
 
+    info!("Listening on {}", std::env::var("LISTEN_ADDRESS").unwrap());
     let listener = tokio::net::TcpListener::bind(std::env::var("LISTEN_ADDRESS").unwrap())
         .await
         .unwrap();

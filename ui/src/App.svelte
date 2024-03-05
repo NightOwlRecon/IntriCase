@@ -1,35 +1,46 @@
 <script lang="ts">
-	import Router from 'svelte-spa-router'
-
-	const routes = {
-		'/': Fa, // Fa makes a decent placeholder, lol
-		'/activateAccount/:userId/:otp': UserActivate,
-		'/admin/users': Users,
-	};
+	import Router, { type RouteLoadedEvent, type RouteLoadingEvent } from 'svelte-spa-router';
 
 	import NavBar from './NavBar.svelte';
+	import Home from './Home.svelte';
+
+	import InvestigationList from './investigations/InvestigationList.svelte';
+	import Investigation from './investigations/Investigation.svelte';
 	import UserActivate from './users/Activate.svelte';
-	import Users from './admin/Users.svelte';
 
-	import { cookieValue } from './helpers';
-	import { Fa } from 'svelte-fa';
+	import AdminUsers from './admin/Users.svelte';
+	import AdminInvestigationList from './admin/investigations/InvestigationList.svelte';
+	import AdminCreateInvestigation from './admin/investigations/CreateInvestigation.svelte';
 
-	let userDetails;
-
-	const getUserDetailsFromCookie = () => {
-		const cookie = cookieValue('user_details');
-		if (!cookie) return;
-
-		userDetails = JSON.parse(cookie);
-		console.log(userDetails);
+	const routeLoaded = (e: RouteLoadedEvent) => {
+		// restore scroll state ?
+		// store in "recent" list locally
+		console.log(e.detail);
+		console.log(window.location);
 	};
 
-	getUserDetailsFromCookie();
+	const routeLoading = (e: RouteLoadingEvent) => {
+		// store scroll state ?
+		console.log(e.detail);
+		console.log(window.location);
+	};
+
+	const routes = {
+		'/': Home,
+		'/investigations': InvestigationList,
+		'/investigations/:investigationId': Investigation,
+		'/activateAccount/:userId/:otp': UserActivate,
+		'/admin/users': AdminUsers,
+		'/admin/investigations': AdminInvestigationList,
+		'/admin/investigations/create': AdminCreateInvestigation,
+	};
 </script>
 
 <main>
-	<NavBar {userDetails} on:change={getUserDetailsFromCookie} />
-	<Router {routes} />
+	<NavBar />
+	<div class="ml-96 mr-96">
+		<Router {routes} on:routeLoaded={routeLoaded} on:routeLoading={routeLoading} />
+	</div>
 </main>
 
 <style>
