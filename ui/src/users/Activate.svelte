@@ -8,11 +8,9 @@
 		const res = await handleSubmitJson(e);
 	};
 
-	export let path;
-
-	let state: { 
-		valid: boolean, 
-		submitted: boolean, 
+	let state: {
+		valid: boolean,
+		submitted: boolean,
 		submitError: boolean,
 		invalidReason: string,
 	} = {
@@ -126,8 +124,6 @@
 					</p>
 				</Alert>
 			{/if}
-			<Input name="id" type="hidden" value={path[1]} />
-			<Input name="otp" type="hidden" value={path[2]} />
 			<Button name="submit" type="submit" class="mb-6" color="blue" disabled={state.valid ? '' : 'disabled'}>Submit</Button>
 		</form>
 	</div>

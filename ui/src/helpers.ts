@@ -25,18 +25,4 @@ const cookieValue = (s: string): string | undefined => {
 	return decodeURIComponent(val);
 };
 
-const handleUriPath = (): string[] => {
-	// let's see if we have a hash
-	if (!!document.location.hash) {
-		let path = document.location.hash.split('/');
-		// and whether the hash looks good and there are more elements
-		if (path[0] === '#!' && path.length > 1) {
-			// remove the first (#!) element and return the rest (we can do this recursively to shift off an entry at each layer in nested components)
-			path.shift();
-			return path;
-		}
-	}
-	return [];
-};
-
-export { cookieValue, handleSubmitJson, handleUriPath };
+export { cookieValue, handleSubmitJson };
