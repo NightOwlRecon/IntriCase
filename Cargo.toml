@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.80"
+anyhow = "1.0.81"
 argon2 = "0.5.3"
 axum = { version = "0.7.4", features = ["form", "http1", "http2", "json", "macros", "multipart", "query", "tokio", "tower-log", "tracing"] }
 axum-casbin = { version = "1.1.0", features = ["tokio"] }
@@ -17,8 +17,8 @@ handlebars = { version = "5.1.1", features = ["dir_source"] }
 lettre = { version = "0.11.4", default-features = false, features = ["builder", "rustls-tls", "smtp-transport", "tokio1", "tokio1-rustls-tls", "tracing"] }
 serde = "1.0.197"
 serde_json = "1.0.114"
-sqlx = { version = "0.7.3", features = ["chrono", "macros", "migrate", "postgres", "runtime-tokio", "tls-rustls", "uuid"] }
-thiserror = "1.0.57"
+sqlx = { version = "0.7.4", features = ["chrono", "macros", "migrate", "postgres", "runtime-tokio", "tls-rustls", "uuid"] }
+thiserror = "1.0.58"
 time = "0.3.34"
 tokio = { version = "1.36.0", features = ["full"] }
 tower = "0.4.13"
