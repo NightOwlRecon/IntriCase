@@ -85,16 +85,16 @@ pub async fn session_layer(
                     }
                 }
             } else {
-                // session isn't valid, go ahead and nuke it and redirect
+                // session isn't valid, go ahead and nuke it
                 session.delete(State(state.clone())).await.unwrap();
-                return (
-                    jar.remove(Cookie::from("user_details")),
-                    private_jar.remove(Cookie::from("session")),
-                    Redirect::temporary("/").into_response(),
-                );
             }
         }
     }
-    // no session set, continue
-    (jar, private_jar, next.run(request).await)
+    // no session set, or invalid session
+    // TODO: deduplicate this with logout?
+    (
+        jar.remove(Cookie::build("user_details").path("/")),
+        private_jar.remove(Cookie::build("session").path("/")),
+        Redirect::temporary("/").into_response(),
+    )
 }

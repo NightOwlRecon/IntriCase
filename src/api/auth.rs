@@ -105,9 +105,10 @@ async fn logout(
         }
     }
     (
-        jar.remove(Cookie::from("user_details")),
-        private_jar.remove(Cookie::from("session")),
-        Redirect::temporary("/"),
+        // TODO: we might want to avoid using jar *and* private_jar here if we're just nuking things
+        jar.remove(Cookie::build("user_details").path("/")),
+        private_jar.remove(Cookie::build("session").path("/")),
+        Redirect::temporary("/").into_response(),
     )
 }
 

@@ -1,4 +1,5 @@
 use anyhow::{Error, Result};
+use chrono::{NaiveDate, NaiveTime};
 use handlebars::Handlebars;
 use lettre::{
     transport::smtp::{authentication::Credentials, response::Response},
@@ -6,6 +7,15 @@ use lettre::{
 };
 
 use std::collections::HashMap;
+
+//TODO: we can apply these with serde
+pub fn parse_form_time(time: &str) -> Result<NaiveTime> {
+    Ok(NaiveTime::parse_from_str(time, "%H:%M")?)
+}
+
+pub fn parse_form_date(date: &str) -> Result<NaiveDate> {
+    Ok(NaiveDate::parse_from_str(date, "%m/%d/%Y")?)
+}
 
 pub fn smtp_enabled() -> bool {
     (std::env::var("USE_SMTP").unwrap_or("false".to_string())).to_lowercase() == "true"

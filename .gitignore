@@ -1,2 +1,4 @@
 /target
 .env
+# this folder is used for reference materials that should not be included in the source tree
+/reference/**
