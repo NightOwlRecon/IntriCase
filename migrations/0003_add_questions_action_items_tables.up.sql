@@ -27,7 +27,9 @@ create table action_items
 		question      uuid                     not null,
 		status				text                     not null,
     assigned      timestamp with time zone not null,
+    resolved      timestamp with time zone not null,
     created       timestamp with time zone not null
 );
 
+create index action_items_assignee_index on action_items (assignee);
 create index action_items_question_index on action_items (question);

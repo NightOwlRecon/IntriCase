@@ -6,6 +6,8 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::{NoContext, Timestamp, Uuid};
 
+use super::tasks::Question;
+
 #[derive(Debug, Deserialize, Serialize, sqlx::FromRow)]
 pub struct Investigation {
     pub id: Uuid,
@@ -60,10 +62,18 @@ impl Investigation {
         .map_err(Error::from)
     }
 
-    pub async fn get_all(db: PgPool) -> Result<Vec<Investigation>> {
+    pub async fn get_all(State(state): State<AppState>) -> Result<Vec<Investigation>> {
         sqlx::query_as!(Investigation, "SELECT * FROM investigations")
-            .fetch_all(&db)
+            .fetch_all(&state.db)
             .await
             .map_err(Error::from)
     }
+
+    pub async fn questions(&self, State(state): State<AppState>, id: &str) -> Result<Vec<Question>> {
+        Ok(sqlx::query_as!(Question, "SELECT * FROM questions WHERE investigation = $1", Uuid::parse_str(id)?)
+            .fetch_all(&state.db)
+            .await
+            .map_err(Error::from)?)
+    }
+
 }

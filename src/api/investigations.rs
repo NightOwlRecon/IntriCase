@@ -15,7 +15,7 @@ pub fn router() -> Router<AppState> {
 }
 
 pub async fn get_all(State(state): State<AppState>) -> impl IntoResponse {
-    let invs = Investigation::get_all(state.db).await;
+    let invs = Investigation::get_all(State(state)).await;
     if invs.is_err() {
         return (StatusCode::INTERNAL_SERVER_ERROR, "".to_string());
     }
