@@ -3,10 +3,7 @@ use anyhow::{Error, Result};
 use axum::extract::State;
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
 use uuid::{NoContext, Timestamp, Uuid};
-
-use super::tasks::Question;
 
 #[derive(Debug, Deserialize, Serialize, sqlx::FromRow)]
 pub struct Investigation {
@@ -69,11 +66,89 @@ impl Investigation {
             .map_err(Error::from)
     }
 
-    pub async fn questions(&self, State(state): State<AppState>, id: &str) -> Result<Vec<Question>> {
-        Ok(sqlx::query_as!(Question, "SELECT * FROM questions WHERE investigation = $1", Uuid::parse_str(id)?)
-            .fetch_all(&state.db)
-            .await
-            .map_err(Error::from)?)
+    pub async fn questions(
+        &self,
+        State(state): State<AppState>,
+        id: &str,
+    ) -> Result<Vec<Question>> {
+        Ok(sqlx::query_as!(
+            Question,
+            "SELECT * FROM questions WHERE investigation = $1",
+            Uuid::parse_str(id)?
+        )
+        .fetch_all(&state.db)
+        .await
+        .map_err(Error::from)?)
+    }
+}
+
+pub struct Question {
+    pub id: Uuid,
+    pub pretty_id: String,
+    pub summary: String,
+    pub details: Option<String>,
+    pub investigation: Uuid,
+    pub outcome: Option<String>,
+    pub creator: Uuid,
+    pub status: String,
+    pub created: DateTime<Utc>,
+}
+
+pub struct ActionItem {
+    pub id: Uuid,
+    pub pretty_id: String,
+    pub summary: String,
+    pub details: Option<String>,
+    pub outcome: Option<String>,
+    pub assignee: Option<Uuid>,
+    pub creator: Uuid,
+    pub question: Uuid,
+    pub status: String,
+    pub assigned: DateTime<Utc>,
+    pub resolved: DateTime<Utc>,
+    pub created: DateTime<Utc>,
+}
+
+impl Question {
+    pub async fn action_items(&self, State(state): State<AppState>) -> Result<Vec<ActionItem>> {
+        Ok(sqlx::query_as!(
+            ActionItem,
+            "SELECT * FROM action_items WHERE question = $1",
+            self.id
+        )
+        .fetch_all(&state.db)
+        .await
+        .map_err(Error::from)?)
     }
 
+    pub async fn add_action_item(&self, State(state): State<AppState>) {}
+}
+
+impl ActionItem {
+    pub async fn get_by_user(State(state): State<AppState>, user: Uuid) -> Result<Vec<ActionItem>> {
+        Ok(sqlx::query_as!(
+            ActionItem,
+            "SELECT * FROM action_items WHERE assignee = $1",
+            user
+        )
+        .fetch_all(&state.db)
+        .await
+        .map_err(Error::from)?)
+    }
+
+    pub async fn assign(
+        &self,
+        State(state): State<AppState>,
+        assignee: Uuid,
+    ) -> Result<ActionItem> {
+        Ok(sqlx::query_as!(
+            ActionItem,
+            "UPDATE action_items SET assignee = $1 WHERE id = $2 RETURNING *",
+            assignee,
+            self.id
+        )
+        .fetch_one(&state.db)
+        .await
+        .map_err(Error::from)?)
+    }
 }
