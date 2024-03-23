@@ -47,10 +47,6 @@ enum ActionItemStatus {
 }
 
 impl Question {
-    pub fn get_by_user(&self, State(state): State<AppState>, user_id: Uuid) -> Vec<Question> {
-        vec![]
-    }
-
     pub async fn action_items(&self, State(state): State<AppState>) -> Result<Vec<ActionItem>> {
         Ok(sqlx::query_as!(
             ActionItem,
@@ -61,5 +57,11 @@ impl Question {
 }
 
 impl ActionItem {
-
+    pub async fn get_by_user(State(state): State<AppState>, user: Uuid) -> Result<Vec<ActionItem>> {
+        Ok(sqlx::query_as!(
+            ActionItem,
+            "SELECT * FROM action_items WHERE assignee = $1",
+            user
+        ).fetch_all(&state.db).await.map_err(Error::from)?)
+    }
 }
