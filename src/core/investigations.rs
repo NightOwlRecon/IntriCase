@@ -104,8 +104,8 @@ pub struct ActionItem {
     pub creator: Uuid,
     pub question: Uuid,
     pub status: String,
-    pub assigned: DateTime<Utc>,
-    pub resolved: DateTime<Utc>,
+    pub assigned: Option<DateTime<Utc>>,
+    pub resolved: Option<DateTime<Utc>>,
     pub created: DateTime<Utc>,
 }
 
@@ -122,6 +122,7 @@ impl Question {
     }
 
     pub async fn add_action_item(&self, State(state): State<AppState>) {}
+    pub async fn status(&self, State(state): State<AppState>) {}
 }
 
 impl ActionItem {
@@ -150,5 +151,19 @@ impl ActionItem {
         .fetch_one(&state.db)
         .await
         .map_err(Error::from)?)
+    }
+
+    pub async fn update_status(&mut self, State(state): State<AppState>, status: String) -> Result<()> {
+        sqlx::query_as!(
+            ActionItem,
+            "UPDATE action_items SET status = $1 WHERE id = $2 RETURNING *",
+            status,
+            self.id
+        )
+        .fetch_one(&state.db)
+        .await
+        .map_err(Error::from)?;
+        self.status = status;
+        Ok(())
     }
 }

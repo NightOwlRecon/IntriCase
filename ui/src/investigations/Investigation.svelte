@@ -4,6 +4,8 @@
 	import { Heading } from 'flowbite-svelte';
 	import { nc } from '../helpers';
 
+	import QuestionList from './QuestionList.svelte';
+
 	import type { Investigation } from '../typedefs';
 
 	export let params = {};

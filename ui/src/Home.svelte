@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Card, Heading } from 'flowbite-svelte';
+	import QuestionList from './investigations/QuestionList.svelte';
 </script>
 
 <Heading class="mb-6" tag="h3">IntriCase</Heading>
@@ -7,3 +8,5 @@
 	<Card class="mr-2" href="/#/investigations">Investigations</Card>
 	<Card class="mr-2" href="/#/admin/investigations/create">Create Investigation</Card>
 </div>
+
+<QuestionList />

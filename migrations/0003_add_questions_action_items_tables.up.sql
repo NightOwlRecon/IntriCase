@@ -26,8 +26,8 @@ create table action_items
 		creator       uuid                     not null,
 		question      uuid                     not null,
 		status				text                     not null,
-    assigned      timestamp with time zone not null,
-    resolved      timestamp with time zone not null,
+    assigned      timestamp with time zone,
+    resolved      timestamp with time zone,
     created       timestamp with time zone not null
 );
 

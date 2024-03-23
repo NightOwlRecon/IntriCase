@@ -21,4 +21,30 @@ type User = {
 	auth_date: string;
 };
 
-export type { Investigation, User };
+type Question = {
+	id: string;
+	pretty_id: string;
+	summary: string;
+	details?: string;
+	investigation: string;
+	outcome?: string;
+	creator: string;
+	status: string;
+	created: string;
+};
+
+type ActionItem = {
+	id: string;
+	pretty_id: string;
+	summary: string;
+	details?: string;
+	outcome?: string;
+	assignee?: string;
+	creator: string;
+	question: string;
+	assigned?: string
+	resolved?: string;
+	created: string;
+};
+
+export type { ActionItem, Investigation, Question, User };
