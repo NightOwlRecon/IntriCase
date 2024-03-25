@@ -31,12 +31,14 @@ type Question = {
 	creator: string;
 	status: string;
 	created: string;
+	action_items: ActionItem[];
 };
 
 type ActionItem = {
 	id: string;
 	pretty_id: string;
 	summary: string;
+	status: string;
 	details?: string;
 	outcome?: string;
 	assignee?: string;

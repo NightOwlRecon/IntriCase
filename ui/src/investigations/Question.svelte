@@ -9,43 +9,55 @@
 		Progressbar,
 	} from 'flowbite-svelte';
 
-	export let questionId;
-	export let question;
+	import type { Question } from '../typedefs';
+
+	export let question: Question;
+
+	$: progress =
+		(question.action_items.filter((item) => item.status === 'completed').length /
+			question.action_items.length) *
+		100;
+
+	const getColor = (status: string) => {
+		switch (status) {
+			case 'completed':
+				return 'green';
+			case 'in_progress':
+				return 'blue';
+			case 'unassigned':
+				return 'red';
+			case 'not_started':
+				return 'dark';
+		}
+	};
+
+	const getStatusText = (status: string) => {
+		switch (status) {
+			case 'completed':
+				return 'Completed';
+			case 'in_progress':
+				return 'In Progress';
+			case 'unassigned':
+				return 'Unassigned';
+			case 'not_started':
+				return 'Not Started';
+		}
+	};
 </script>
 
 <AccordionItem open>
 	<div slot="header" class="flex w-full">
-		<div class="flex-grow">{questionId}. {question}</div>
-		<Progressbar
-			progress="25"
-			class="mr-4 mt-1 w-48 text-white"
-			color="blue"
-			size="h-4"
-			labelInside
-		/>
+		<div class="flex-grow">{question.pretty_id}. {question.summary}</div>
+		<Progressbar {progress} class="mr-4 mt-1 w-48 text-white" color="blue" size="h-4" labelInside />
 	</div>
-	<p>
-		At the time of his disappearance, John was current on his rent and bills, but we do not have
-		details of his employment. Contact individuals and search social media to attempt to find
-		details.
-	</p>
+	<p>{question.details}</p>
 	<Heading tag="h4" class="mt-4 mb-4">Action Items</Heading>
 	<Listgroup>
-		<ListgroupItem>
-			1a. Check John's social media posts for mentions
-			<Badge class="float-right" color="green">Completed</Badge>
-		</ListgroupItem>
-		<ListgroupItem>
-			1b. Check with previous employers
-			<Badge class="float-right" color="red">Unassigned</Badge>
-		</ListgroupItem>
-		<ListgroupItem>
-			1c. Check with known associates
-			<Badge class="float-right" color="yellow">In Progress</Badge>
-		</ListgroupItem>
-		<ListgroupItem>
-			1d. Check with financial institutions
-			<Badge class="float-right" color="dark">Not Started</Badge>
-		</ListgroupItem>
+		{#each question.action_items as action_item}
+			<ListgroupItem>
+				{question.pretty_id}.{action_item.pretty_id}. {action_item.summary}
+				<Badge class="float-right" color={getColor(action_item.status)}>{getStatusText(action_item.status)}</Badge>
+			</ListgroupItem>
+		{/each}
 	</Listgroup>
 </AccordionItem>
