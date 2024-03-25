@@ -1,13 +1,8 @@
 <script lang="ts">
-	import { faDivide } from '@fortawesome/free-solid-svg-icons';
 	import {
 		Accordion,
-		AccordionItem,
 		Badge,
 		Heading,
-		Listgroup,
-		ListgroupItem,
-		Progressbar,
 	} from 'flowbite-svelte';
 
 	import QuestionItem from './Question.svelte';
