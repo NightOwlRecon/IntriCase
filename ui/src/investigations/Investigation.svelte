@@ -6,13 +6,14 @@
 
 	import type { Investigation } from '../typedefs';
 
-	export let params = { investigationId: '' };
+	export let params = { investigationId: undefined };
 
 	const investigationId = params.investigationId;
 
 	let investigation: undefined | Investigation;
 
 	const getInvestigation = async () => {
+		if(!investigationId) return;
 		const res = await fetch(`/api/investigations/${investigationId}`);
 		if (res.ok) {
 			investigation = await res.json();
