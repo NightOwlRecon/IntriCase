@@ -56,7 +56,9 @@
 		{#each question.action_items as action_item}
 			<ListgroupItem>
 				{question.pretty_id}.{action_item.pretty_id}. {action_item.summary}
-				<Badge class="float-right" color={getColor(action_item.status)}>{getStatusText(action_item.status)}</Badge>
+				<Badge class="float-right" color={getColor(action_item.status)}>
+					{getStatusText(action_item.status)}
+				</Badge>
 			</ListgroupItem>
 		{/each}
 	</Listgroup>
