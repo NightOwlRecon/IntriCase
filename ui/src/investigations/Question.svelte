@@ -1,6 +1,5 @@
 <script lang="ts">
 	import {
-		Accordion,
 		AccordionItem,
 		Badge,
 		Heading,
@@ -45,21 +44,31 @@
 	};
 </script>
 
-<AccordionItem open>
+<AccordionItem>
 	<div slot="header" class="flex w-full">
 		<div class="flex-grow">{question.pretty_id}. {question.summary}</div>
-		<Progressbar {progress} class="mr-4 mt-1 w-48 text-white" color="blue" size="h-4" labelInside />
+		{#if progress}
+			<Progressbar
+				{progress}
+				class="mr-4 mt-1 w-48 text-white"
+				color="blue"
+				size="h-4"
+				labelInside
+			/>
+		{/if}
 	</div>
 	<p>{question.details}</p>
-	<Heading tag="h4" class="mt-4 mb-4">Action Items</Heading>
-	<Listgroup>
-		{#each question.action_items as action_item}
-			<ListgroupItem>
-				{question.pretty_id}.{action_item.pretty_id}. {action_item.summary}
-				<Badge class="float-right" color={getColor(action_item.status)}>
-					{getStatusText(action_item.status)}
-				</Badge>
-			</ListgroupItem>
-		{/each}
-	</Listgroup>
+	{#if question.action_items.length > 0}
+		<Heading tag="h4" class="mt-4 mb-4">Action Items</Heading>
+		<Listgroup>
+			{#each question.action_items as action_item}
+				<ListgroupItem>
+					{question.pretty_id}.{action_item.pretty_id}. {action_item.summary}
+					<Badge class="float-right" color={getColor(action_item.status)}>
+						{getStatusText(action_item.status)}
+					</Badge>
+				</ListgroupItem>
+			{/each}
+		</Listgroup>
+	{/if}
 </AccordionItem>
