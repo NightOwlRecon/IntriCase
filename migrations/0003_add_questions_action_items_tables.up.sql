@@ -7,7 +7,8 @@ create table questions
 		details       text,
 		investigation uuid       			         not null,
 		outcome       text,
-		creator       uuid                     not null,
+		creator       uuid                     not null
+        constraint questions_creator_fk references users (id),
 		status				text                     not null,
     created       timestamp with time zone not null
 );
@@ -22,9 +23,12 @@ create table action_items
     summary       text                     not null,
     details       text,
 		outcome       text,
-		assignee      uuid,
-		creator       uuid                     not null,
-		question      uuid                     not null,
+		assignee      uuid
+        constraint action_items_assignee_fk references users (id),
+		creator       uuid                     not null
+        constraint action_items_creator_fk references users (id),
+		question      uuid                     not null
+        constraint action_items_question_fk references questions (id),
 		status				text                     not null,
     assigned      timestamp with time zone,
     resolved      timestamp with time zone,

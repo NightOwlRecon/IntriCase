@@ -18,10 +18,11 @@ create table sessions
     id      uuid                     not null
         constraint sessions_pk primary key,
     "user"  uuid                     not null
-        constraint sessions_users_id_fk references users,
+        constraint sessions_users_fk references users (id),
     created timestamp with time zone not null
 );
 
 create index sessions_user_index on sessions ("user");
 
 create index sessions_created_index on sessions (created);
+

@@ -2,7 +2,8 @@ create table logs
 (
     id            uuid                     not null
         constraint logs_pk primary key,
-    actor         uuid,
+    actor         uuid
+        constraint logs_actor_fk references users (id),
 		target        uuid,
 		previous_data text,
 		data          text,
