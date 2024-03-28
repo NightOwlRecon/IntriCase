@@ -28,11 +28,14 @@ pub async fn get_by_id(
     Path(investigation_id): Path<String>,
 ) -> impl IntoResponse {
     if let Ok(investigation_id) = Uuid::parse_str(&investigation_id) {
-        if let Ok(investigation) =
-            Investigation::get(State(state), &investigation_id.to_string()).await
+        if let Ok(mut investigation) =
+            Investigation::get(State(state.clone()), &investigation_id.to_string()).await
         {
+            let questions = investigation.get_questions(State(state.clone()), &investigation_id.to_string()).await;
+
             return (StatusCode::OK, json!(investigation).to_string());
         }
     }
     (StatusCode::INTERNAL_SERVER_ERROR, "".to_string())
 }
+

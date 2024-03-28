@@ -9,6 +9,7 @@ use axum::{
 use serde::Deserialize;
 use serde_json::json;
 
+use crate::core::investigations::Question;
 use crate::{core::helpers::parse_form_date, core::investigations::Investigation, AppState};
 
 pub fn router() -> Router<AppState> {

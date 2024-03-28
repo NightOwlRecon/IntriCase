@@ -16,7 +16,7 @@ pub struct LogEntry {
 }
 
 impl LogEntry {
-    pub async fn create(
+    pub async fn store(
         State(state): State<AppState>,
         actor: Option<Uuid>,
         target: Option<Uuid>,

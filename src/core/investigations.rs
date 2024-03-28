@@ -17,6 +17,8 @@ pub struct Investigation {
     pub missing_since: NaiveDate,
     pub synopsis: String,
     pub created: DateTime<Utc>,
+    #[sqlx(skip)]
+    pub questions: Option<Vec<Question>>,
 }
 
 impl Investigation {
@@ -31,10 +33,9 @@ impl Investigation {
         namus_id: Option<String>,
         missing_since: NaiveDate,
         synopsis: String,
-    ) -> Result<Investigation> {
-        Ok(sqlx::query_as!(
-            Investigation,
-            "INSERT INTO investigations (id, internal_id, first_name, middle_name, last_name, date_of_birth, namus_id, missing_since, synopsis, created) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *;",
+    ) -> Result<Uuid> {
+        let res = sqlx::query!(
+            "INSERT INTO investigations (id, internal_id, first_name, middle_name, last_name, date_of_birth, namus_id, missing_since, synopsis, created) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id;",
             Uuid::new_v7(Timestamp::now(NoContext)),
             internal_id,
             first_name,
@@ -45,29 +46,53 @@ impl Investigation {
             missing_since,
             synopsis,
             Utc::now(),
-        ).fetch_one(&state.db).await?)
+        ).fetch_one(&state.db).await?;
+        Ok(res.id)
     }
 
-    pub async fn get(State(state): State<AppState>, id: &str) -> Result<Investigation> {
-        sqlx::query_as!(
-            Investigation,
+    pub async fn get(
+        State(state): State<AppState>,
+        id: &str,
+        details: bool,
+    ) -> Result<Investigation> {
+        let inv = sqlx::query!(
             "SELECT * FROM investigations WHERE id = $1",
             Uuid::parse_str(id)?
         )
         .fetch_one(&state.db)
         .await
-        .map_err(Error::from)
+        .map_err(Error::from)?;
+        let mut investigation = Investigation {
+            id: inv.id,
+            internal_id: inv.internal_id,
+            first_name: inv.first_name,
+            middle_name: inv.middle_name,
+            last_name: inv.last_name,
+            date_of_birth: inv.date_of_birth,
+            namus_id: inv.namus_id,
+            missing_since: inv.missing_since,
+            synopsis: inv.synopsis,
+            created: inv.created,
+            questions: None,
+        };
+
+        if details {
+            let questions = sqlx::query!(
+                "SELECT * FROM questions WHERE investigation = $1",
+                inv.id
+            ).fetch_all(&state.db).await.map_err(Error::from)?;
+
+            let action_items = sqlx::query!(
+                "SELECT * FROM action_items WHERE question = ANY($1)",
+                &questions.iter().map(|q| q.id).collect::<Vec<Uuid>>()
+            ).fetch_all(&state.db).await.map_err(Error::from)?;
+        }
+
+        Ok(investigation)
     }
 
-    pub async fn get_all(State(state): State<AppState>) -> Result<Vec<Investigation>> {
-        sqlx::query_as!(Investigation, "SELECT * FROM investigations")
-            .fetch_all(&state.db)
-            .await
-            .map_err(Error::from)
-    }
-
-    pub async fn questions(
-        &self,
+    pub async fn get_questions(
+        &mut self,
         State(state): State<AppState>,
         id: &str,
     ) -> Result<Vec<Question>> {
@@ -82,6 +107,7 @@ impl Investigation {
     }
 }
 
+#[derive(Debug, Deserialize, Serialize, sqlx::FromRow)]
 pub struct Question {
     pub id: Uuid,
     pub pretty_id: String,
@@ -94,6 +120,7 @@ pub struct Question {
     pub created: DateTime<Utc>,
 }
 
+#[derive(Debug, Deserialize, Serialize, sqlx::FromRow)]
 pub struct ActionItem {
     pub id: Uuid,
     pub pretty_id: String,
@@ -153,7 +180,11 @@ impl ActionItem {
         .map_err(Error::from)?)
     }
 
-    pub async fn update_status(&mut self, State(state): State<AppState>, status: String) -> Result<()> {
+    pub async fn update_status(
+        &mut self,
+        State(state): State<AppState>,
+        status: String,
+    ) -> Result<()> {
         sqlx::query_as!(
             ActionItem,
             "UPDATE action_items SET status = $1 WHERE id = $2 RETURNING *",
