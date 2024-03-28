@@ -80,37 +80,26 @@ impl Investigation {
         };
 
         if details {
-            let questions =
-                sqlx::query!("SELECT * FROM questions WHERE investigation = $1", inv.id)
-                    .fetch_all(&state.db)
-                    .await
-                    .map_err(Error::from)?;
-
-            let action_items = sqlx::query!(
-                "SELECT * FROM action_items WHERE question = ANY($1)",
-                &questions.iter().map(|q| q.id).collect::<Vec<Uuid>>()
-            )
-            .fetch_all(&state.db)
-            .await
-            .map_err(Error::from)?;
+            investigation.get_questions(State(state));
         }
 
         Ok(investigation)
     }
 
-    pub async fn get_questions(
-        &mut self,
-        State(state): State<AppState>,
-        id: &str,
-    ) -> Result<Vec<Question>> {
-        Ok(sqlx::query_as!(
-            Question,
-            "SELECT * FROM questions WHERE investigation = $1",
-            Uuid::parse_str(id)?
+    pub async fn get_questions(&mut self, State(state): State<AppState>) -> Result<()> {
+        let questions = sqlx::query!("SELECT * FROM questions WHERE investigation = $1", self.id)
+            .fetch_all(&state.db)
+            .await
+            .map_err(Error::from)?;
+
+        let action_items = sqlx::query!(
+            "SELECT * FROM action_items WHERE question = ANY($1)",
+            &questions.iter().map(|q| q.id).collect::<Vec<Uuid>>()
         )
         .fetch_all(&state.db)
         .await
-        .map_err(Error::from)?)
+        .map_err(Error::from)?;
+        Ok(())
     }
 }
 
