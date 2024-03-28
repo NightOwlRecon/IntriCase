@@ -80,25 +80,86 @@ impl Investigation {
         };
 
         if details {
-            investigation.get_questions(State(state));
+            investigation.get_questions(State(state)).await?;
         }
 
         Ok(investigation)
     }
 
     pub async fn get_questions(&mut self, State(state): State<AppState>) -> Result<()> {
-        let questions = sqlx::query!("SELECT * FROM questions WHERE investigation = $1", self.id)
-            .fetch_all(&state.db)
-            .await
-            .map_err(Error::from)?;
+        // if we're doing this we almost certainly need the action items as well
+        let questions_data = sqlx::query!(
+            r#"SELECT
+                questions.id as question_id,
+                questions.pretty_id as question_pretty_id,
+                questions.summary as question_summary,
+                questions.details as question_details,
+                questions.investigation as question_investigation,
+                questions.outcome as question_outcome,
+                questions.creator as question_creator,
+                questions.status as question_status,
+                questions.created as question_created,
 
-        let action_items = sqlx::query!(
-            "SELECT * FROM action_items WHERE question = ANY($1)",
-            &questions.iter().map(|q| q.id).collect::<Vec<Uuid>>()
+                -- we manually mark this field as nullable because sqlx doesn't properly infer with the join
+                action_items.id as "action_item_id?",
+                action_items.pretty_id as action_item_pretty_id,
+                action_items.summary as action_item_summary,
+                action_items.details as action_item_details,
+                action_items.outcome as action_item_outcome,
+                action_items.assignee as action_item_assignee,
+                action_items.creator as action_item_creator,
+                action_items.question as action_item_question,
+                action_items.status as action_item_status,
+                action_items.assigned as action_item_assigned,
+                action_items.resolved as action_item_resolved,
+                action_items.created as action_item_created
+
+                FROM questions
+                LEFT JOIN action_items ON action_items.question = questions.id
+                WHERE investigation = $1"#,
+            self.id
         )
         .fetch_all(&state.db)
         .await
         .map_err(Error::from)?;
+
+        let mut questions: HashMap<Uuid, Question> = HashMap::new();
+
+        for record in questions_data {
+            let question = questions.entry(record.question_id).or_insert(Question {
+                id: record.question_id,
+                pretty_id: record.question_pretty_id,
+                summary: record.question_summary,
+                details: record.question_details,
+                investigation: record.question_investigation,
+                outcome: record.question_outcome,
+                creator: record.question_creator,
+                status: record.question_status,
+                created: record.question_created,
+                action_items: HashMap::<Uuid, ActionItem>::new(),
+            });
+
+            if let Some(action_item_id) = record.action_item_id {
+                let action_item = ActionItem {
+                    id: action_item_id,
+                    pretty_id: record.action_item_pretty_id,
+                    summary: record.action_item_summary,
+                    details: record.action_item_details,
+                    outcome: record.action_item_outcome,
+                    assignee: record.action_item_assignee,
+                    creator: record.action_item_creator,
+                    question: record.action_item_question,
+                    status: record.action_item_status,
+                    assigned: record.action_item_assigned,
+                    resolved: record.action_item_resolved,
+                    created: record.action_item_created,
+                };
+                question.action_items.insert(action_item_id, action_item);
+            }
+        }
+
+        self.questions = Some(questions);
+
         Ok(())
     }
 }
@@ -114,6 +175,7 @@ pub struct Question {
     pub creator: Uuid,
     pub status: String,
     pub created: DateTime<Utc>,
+    pub action_items: HashMap<Uuid, ActionItem>,
 }
 
 #[derive(Debug, Deserialize, Serialize, sqlx::FromRow)]
