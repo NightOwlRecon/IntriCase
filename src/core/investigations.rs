@@ -62,6 +62,7 @@ impl Investigation {
         .fetch_one(&state.db)
         .await
         .map_err(Error::from)?;
+
         let mut investigation = Investigation {
             id: inv.id,
             internal_id: inv.internal_id,
