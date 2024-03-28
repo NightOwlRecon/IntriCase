@@ -19,7 +19,6 @@ pub struct Investigation {
     pub missing_since: NaiveDate,
     pub synopsis: String,
     pub created: DateTime<Utc>,
-    #[sqlx(skip)]
     pub questions: Option<HashMap<Uuid, Question>>,
 }
 
