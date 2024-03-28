@@ -5,6 +5,8 @@ use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::{NoContext, Timestamp, Uuid};
 
+use std::collections::HashMap;
+
 #[derive(Debug, Deserialize, Serialize, sqlx::FromRow)]
 pub struct Investigation {
     pub id: Uuid,
@@ -18,7 +20,7 @@ pub struct Investigation {
     pub synopsis: String,
     pub created: DateTime<Utc>,
     #[sqlx(skip)]
-    pub questions: Option<Vec<Question>>,
+    pub questions: Option<HashMap<Uuid, Question>>,
 }
 
 impl Investigation {
@@ -78,15 +80,19 @@ impl Investigation {
         };
 
         if details {
-            let questions = sqlx::query!(
-                "SELECT * FROM questions WHERE investigation = $1",
-                inv.id
-            ).fetch_all(&state.db).await.map_err(Error::from)?;
+            let questions =
+                sqlx::query!("SELECT * FROM questions WHERE investigation = $1", inv.id)
+                    .fetch_all(&state.db)
+                    .await
+                    .map_err(Error::from)?;
 
             let action_items = sqlx::query!(
                 "SELECT * FROM action_items WHERE question = ANY($1)",
                 &questions.iter().map(|q| q.id).collect::<Vec<Uuid>>()
-            ).fetch_all(&state.db).await.map_err(Error::from)?;
+            )
+            .fetch_all(&state.db)
+            .await
+            .map_err(Error::from)?;
         }
 
         Ok(investigation)
