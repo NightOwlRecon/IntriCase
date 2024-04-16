@@ -20,7 +20,7 @@
     "autoprefixer": "^10.4.19",
     "date-fns": "^3.6.0",
     "flowbite": "^2.3.0",
-    "flowbite-svelte": "^0.44.24",
+    "flowbite-svelte": "^0.45.0",
     "postcss": "^8.4.38",
     "postcss-load-config": "^5.0.3",
     "prettier": "^3.2.5",
@@ -32,7 +32,7 @@
     "tailwindcss": "^3.4.3",
     "tslib": "^2.6.0",
     "typescript": "^5.4.5",
-    "vite": "^5.2.8",
+    "vite": "^5.2.9",
     "zod": "^3.22.4"
   },
   "dependencies": {
