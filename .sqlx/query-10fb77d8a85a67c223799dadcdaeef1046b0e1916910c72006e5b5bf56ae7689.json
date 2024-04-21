@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM investigations WHERE id = $1",
+  "query": "INSERT INTO questions (id, created, creator, pretty_id, summary, details, investigation, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;",
   "describe": {
     "columns": [
       {
@@ -20,63 +20,58 @@
       },
       {
         "ordinal": 3,
-        "name": "internal_id",
+        "name": "pretty_id",
         "type_info": "Text"
       },
       {
         "ordinal": 4,
-        "name": "first_name",
+        "name": "summary",
         "type_info": "Text"
       },
       {
         "ordinal": 5,
-        "name": "middle_name",
+        "name": "details",
         "type_info": "Text"
       },
       {
         "ordinal": 6,
-        "name": "last_name",
-        "type_info": "Text"
+        "name": "investigation",
+        "type_info": "Uuid"
       },
       {
         "ordinal": 7,
-        "name": "date_of_birth",
-        "type_info": "Date"
-      },
-      {
-        "ordinal": 8,
-        "name": "namus_id",
+        "name": "outcome",
         "type_info": "Text"
       },
       {
-        "ordinal": 9,
-        "name": "missing_since",
-        "type_info": "Date"
-      },
-      {
-        "ordinal": 10,
-        "name": "synopsis",
+        "ordinal": 8,
+        "name": "status",
         "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "Timestamptz",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Uuid",
+        "Text"
       ]
     },
     "nullable": [
       false,
       false,
       false,
-      true,
-      false,
-      true,
       false,
       false,
       true,
       false,
+      true,
       false
     ]
   },
-  "hash": "d2bafeda4fcdb043d919c5247548f248d154db6c42cf421dd976bc7995b68523"
+  "hash": "10fb77d8a85a67c223799dadcdaeef1046b0e1916910c72006e5b5bf56ae7689"
 }

@@ -26,7 +26,7 @@
 	};
 
 	const routes = {
-		'/': Home,
+		'/': AdminCreateInvestigation,
 		'/investigations': InvestigationList,
 		'/investigations/:investigationId': Investigation,
 		'/activateAccount/:userId/:otp': UserActivate,

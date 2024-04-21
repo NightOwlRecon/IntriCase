@@ -1,12 +1,24 @@
 <script lang="ts">
-	import { Button, Heading, Input, Label, Textarea } from 'flowbite-svelte';
+	import { Button, Dropdown, Heading, Input, Label, Textarea } from 'flowbite-svelte';
+
 	import {
 		handleSubmitJson,
 		highlightZodErrors,
 		objectFromForm,
 		resetZodErrors,
 	} from '../../helpers';
+
 	import { z, ZodError } from 'zod';
+	import Fa from 'svelte-fa';
+	import { faClose, faEdit, faPlus } from '@fortawesome/free-solid-svg-icons';
+
+	import type { Question } from '../../bindings/Question';
+
+	import QuestionItem from '../../investigations/Question.svelte';
+
+	let questions: Question[] = [];
+
+	let newQuestion: Question | undefined;
 
 	const CreateInvestigationSchema = z.object({
 		first_name: z.string(),
@@ -33,8 +45,6 @@
 		synopsis: z.string(),
 	});
 
-	//https://www.namus.gov/api/CaseSets/NamUs/MissingPersons/Cases/98673
-
 	// TODO: break as much of this as makes sense out into helpers.ts
 	const checkInput = async (e: Event) => {
 		if (!e.target || !('form' in e.target))
@@ -52,6 +62,7 @@
 			}
 		}
 	};
+
 	const submitCreateInvestigationForm = async (e: Event) => {
 		const res = await handleSubmitJson(e);
 		if (res.ok) {
@@ -59,16 +70,72 @@
 			if (data.id) document.location = `/#/investigations/${data.id}`;
 		}
 	};
+
+	const checkNamus = (e: Event) => {
+		if (!(e.target instanceof HTMLFormElement)) throw new Error('Not called on HTMLFormElement');
+		const namusId = e.target.form.namusImportId.value;
+		if (namusId.match(/^mp[0-9]+$/i)) {
+			e.target.form.namusImportId.setCustomValidity('');
+		} else {
+			e.target.form.namusImportId.setCustomValidity('NamUs ID must be in the format of "MP12345"');
+		}
+	};
+
+	//https://www.namus.gov/api/CaseSets/NamUs/MissingPersons/Cases/98673
+	const namusImport = async (e: Event) => {
+		if (!(e.target instanceof HTMLFormElement)) throw new Error('Not called on HTMLFormElement');
+		const namusId = e.target.form.namusImportId.value;
+		const res = await fetch(
+			`https://www.namus.gov/api/CaseSets/NamUs/MissingPersons/Cases/${namusId}`,
+		);
+		if (!res.ok) {
+			console.log(res);
+		}
+		console.log(res.json());
+	};
+
+	const addQuestion = (e: Event) => {
+		if (!(e.target instanceof HTMLFormElement)) throw new Error('Not called on HTMLFormElement');
+		const newQuestion: Question = {
+			id: '',
+			pretty_id: (questions.length + 1).toString(),
+			summary: e.target.addQuestion.value,
+			details: '',
+			investigation: '',
+			creator: '',
+			status: '',
+			created: '',
+			outcome: '',
+			action_items: {},
+		};
+
+		// we can't just push to the array, because Svelte won't "see" the change
+		// the compiler only looks at variable assignment, not mutation
+		// so to trigger a re-render, we have to create a new array and assign it to the variable
+		questions = [...questions, newQuestion];
+	};
 </script>
 
+<Button class="mt-2 float-right" color="green">
+	NamUs Import <Fa class="inline-block ml-2" icon={faPlus} />
+</Button>
+<Dropdown class="m-4">
+	<Label class="" for="namusImportId">NamUs ID</Label>
+	<form on:input={checkNamus} on:submit|preventDefault={namusImport}>
+		<Input class="mb-4" name="namusImportId" placeholder="MPxxxxx" />
+		<Button color="green">Import</Button>
+	</form>
+</Dropdown>
+
 <Heading tag="h1" class="mt-4 mb-8">Create Investigation</Heading>
+
 <form
 	action="/api/admin/investigations/create"
 	method="POST"
 	on:input={checkInput}
 	on:submit|preventDefault={submitCreateInvestigationForm}
 >
-	<Heading tag="h3" class="mb-4">Personal Information</Heading>
+	<Heading tag="h3" class="mt-4 mb-4">Personal Information</Heading>
 	<div class="flex mb-4">
 		<div class="mr-4">
 			<Label for="first_name">First Name</Label>
@@ -105,7 +172,7 @@
 		</div>
 		<div class="">
 			<Label for="namus_id">NamUs ID (optional - MPxxxxx)</Label>
-			<Input name="namus_id" placeholder="MP12345" />
+			<Input name="namus_id" placeholder="MPxxxxx" />
 		</div>
 	</div>
 
@@ -114,6 +181,28 @@
 			<Label for="synopsis">Synopsis</Label>
 			<Textarea name="synopsis" rows="8" class="w-full" />
 		</div>
+	</div>
+
+	<Button class="float-right" color="green">
+		Add Question <Fa class="inline-block ml-2" icon={faPlus} />
+	</Button>
+	<Dropdown class="m-4">
+		<Label class="" for="addQuestion">Question</Label>
+		<form on:submit|preventDefault={addQuestion}>
+			<Input class="mb-4" name="addQuestion" placeholder="Question" />
+			<Button type="submit" color="green">Add</Button>
+		</form>
+	</Dropdown>
+
+	<Heading tag="h3" class="mb-4">Initial Questions</Heading>
+	<div class="mb-8">
+		{#each questions as question}
+			<QuestionItem {question} />
+		{/each}
+
+		{#if newQuestion}
+			<QuestionItem question={newQuestion} editControls={true} editing={true} />
+		{/if}
 	</div>
 
 	<Button type="submit" class="mb-4" color="blue">Submit</Button>

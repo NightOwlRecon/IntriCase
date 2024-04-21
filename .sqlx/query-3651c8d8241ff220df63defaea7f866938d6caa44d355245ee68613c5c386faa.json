@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM investigations WHERE id = $1",
+  "query": "SELECT * FROM action_items WHERE assignee = $1",
   "describe": {
     "columns": [
       {
@@ -20,43 +20,48 @@
       },
       {
         "ordinal": 3,
-        "name": "internal_id",
+        "name": "pretty_id",
         "type_info": "Text"
       },
       {
         "ordinal": 4,
-        "name": "first_name",
+        "name": "summary",
         "type_info": "Text"
       },
       {
         "ordinal": 5,
-        "name": "middle_name",
+        "name": "details",
         "type_info": "Text"
       },
       {
         "ordinal": 6,
-        "name": "last_name",
+        "name": "outcome",
         "type_info": "Text"
       },
       {
         "ordinal": 7,
-        "name": "date_of_birth",
-        "type_info": "Date"
+        "name": "assignee",
+        "type_info": "Uuid"
       },
       {
         "ordinal": 8,
-        "name": "namus_id",
-        "type_info": "Text"
+        "name": "question",
+        "type_info": "Uuid"
       },
       {
         "ordinal": 9,
-        "name": "missing_since",
-        "type_info": "Date"
+        "name": "status",
+        "type_info": "Text"
       },
       {
         "ordinal": 10,
-        "name": "synopsis",
-        "type_info": "Text"
+        "name": "assigned",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 11,
+        "name": "resolved",
+        "type_info": "Timestamptz"
       }
     ],
     "parameters": {
@@ -68,15 +73,16 @@
       false,
       false,
       false,
-      true,
-      false,
-      true,
       false,
       false,
       true,
+      true,
+      true,
       false,
-      false
+      false,
+      true,
+      true
     ]
   },
-  "hash": "d2bafeda4fcdb043d919c5247548f248d154db6c42cf421dd976bc7995b68523"
+  "hash": "3651c8d8241ff220df63defaea7f866938d6caa44d355245ee68613c5c386faa"
 }

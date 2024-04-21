@@ -39,19 +39,15 @@ async fn main() {
     let state = AppState { db, key };
 
     let app = Router::new()
-        .nest("/api/admin", api::admin::router())
-        .nest("/api/investigations", api::investigations::router())
-        .layer(axum::middleware::from_fn_with_state(
-            state.clone(),
-            core::sessions::session_layer,
-        ))
-        //
-        // ROUTES BELOW THIS LINE ARE UNAUTHENTICATED
-        //
-        .nest("/api/auth", api::auth::router())
+        // for now, the api and each sub-module have their own nested routers
+        // in the future it might make more sense to have all of the routes in one place
+        // but for now this keeps things contained/encapsulated and keeps the module structure
+        // and the api structure similar to one-another
+        .nest("/api", api::router(state.clone()))
         .with_state(state)
+        // TODO: now that we've nested the API routes under /api we probably don't need to do this
+        // as a fallback if there's a more appropriate or performant method
         .fallback_service(ServeDir::new("ui/dist"))
-        // trace layer is last to catch *everything*
         .layer(TraceLayer::new_for_http());
 
     info!("Listening on {}", std::env::var("LISTEN_ADDRESS").unwrap());

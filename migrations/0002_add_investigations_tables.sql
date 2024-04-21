@@ -2,6 +2,9 @@ create table investigations
 (
     id            uuid                     not null
         constraint investigations_pk primary key,
+    created       timestamp with time zone not null,
+    creator       uuid                     not null
+        constraint investigations_creator_fk references users (id),
     internal_id   text,
     first_name    text                     not null,
     middle_name   text,
@@ -9,8 +12,7 @@ create table investigations
     date_of_birth date                     not null,
     namus_id      text,
     missing_since date                     not null,
-    synopsis      text                     not null,
-    created       timestamp with time zone not null
+    synopsis      text                     not null
 );
 
 create index investigations_internal_id_index on investigations (internal_id);

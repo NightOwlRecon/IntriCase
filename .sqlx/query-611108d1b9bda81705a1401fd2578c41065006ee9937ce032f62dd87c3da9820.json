@@ -1,0 +1,142 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n                questions.id            as question_id,\n                questions.created       as question_created,\n                questions.pretty_id     as question_pretty_id,\n                questions.summary       as question_summary,\n                questions.details       as question_details,\n                questions.investigation as question_investigation,\n                questions.outcome       as question_outcome,\n                questions.creator       as question_creator,\n                questions.status        as question_status,\n\n                -- we manually mark this field as nullable because sqlx doesn't properly infer with the join\n                action_items.id         as \"action_item_id?\",\n                action_items.created    as action_item_created,\n                action_items.pretty_id  as action_item_pretty_id,\n                action_items.summary    as action_item_summary,\n                action_items.details    as action_item_details,\n                action_items.outcome    as action_item_outcome,\n                action_items.assignee   as action_item_assignee,\n                action_items.creator    as action_item_creator,\n                action_items.question   as action_item_question,\n                action_items.status     as action_item_status,\n                action_items.assigned   as action_item_assigned,\n                action_items.resolved   as action_item_resolved\n\n                FROM questions\n                LEFT JOIN action_items ON action_items.question = questions.id\n                WHERE investigation = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "question_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "question_created",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "question_pretty_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "question_summary",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "question_details",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "question_investigation",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "question_outcome",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "question_creator",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "question_status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "action_item_id?",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "action_item_created",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 11,
+        "name": "action_item_pretty_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "action_item_summary",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "action_item_details",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "action_item_outcome",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 15,
+        "name": "action_item_assignee",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 16,
+        "name": "action_item_creator",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 17,
+        "name": "action_item_question",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 18,
+        "name": "action_item_status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 19,
+        "name": "action_item_assigned",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 20,
+        "name": "action_item_resolved",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "611108d1b9bda81705a1401fd2578c41065006ee9937ce032f62dd87c3da9820"
+}

@@ -60,7 +60,7 @@ pub async fn session_layer(
     State(state): State<AppState>,
     jar: CookieJar,
     private_jar: PrivateCookieJar,
-    request: Request,
+    mut request: Request,
     next: Next,
 ) -> impl IntoResponse {
     // TODO: see about simplifying these nested if statements
@@ -75,7 +75,8 @@ pub async fn session_layer(
                 {
                     // the user from the session exists
                     if user.is_active() {
-                        // the user is active
+                        // the user is active, so we add the user to the request extensions
+                        request.extensions_mut().insert(user);
                         return (
                             // TODO: update user data if anything has changed
                             jar,

@@ -15,12 +15,13 @@ pub fn router() -> Router<AppState> {
 }
 
 pub async fn get_all(State(state): State<AppState>) -> impl IntoResponse {
-    let invs = Investigation::get_all(state.db).await;
+    /*let invs = Investigation::get_all(State(state)).await;
     if invs.is_err() {
         return (StatusCode::INTERNAL_SERVER_ERROR, "".to_string());
     }
 
-    (StatusCode::OK, json!(invs.unwrap()).to_string())
+    (StatusCode::OK, json!(invs.unwrap()).to_string())*/
+    StatusCode::OK
 }
 
 pub async fn get_by_id(
@@ -29,7 +30,7 @@ pub async fn get_by_id(
 ) -> impl IntoResponse {
     if let Ok(investigation_id) = Uuid::parse_str(&investigation_id) {
         if let Ok(investigation) =
-            Investigation::get(State(state), &investigation_id.to_string()).await
+            Investigation::get(State(state.clone()), &investigation_id.to_string(), true).await
         {
             return (StatusCode::OK, json!(investigation).to_string());
         }

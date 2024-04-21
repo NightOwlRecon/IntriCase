@@ -1,14 +1,18 @@
 use axum::http::StatusCode;
 use axum::routing::post;
+use axum::Extension;
 use axum::{
     extract::{Json, State},
     response::IntoResponse,
     Router,
 };
-
+use chrono::{DateTime, NaiveDate, Utc};
 use serde::Deserialize;
 use serde_json::json;
+use uuid::Uuid;
 
+use crate::core::investigations::ActionItem;
+use crate::core::users::User;
 use crate::{core::helpers::parse_form_date, core::investigations::Investigation, AppState};
 
 pub fn router() -> Router<AppState> {
@@ -16,52 +20,46 @@ pub fn router() -> Router<AppState> {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct CreateInvestigationRequest {
-    internal_id: Option<String>,
-    first_name: String,
-    middle_name: Option<String>,
-    last_name: String,
-    // TODO: deserialize/parse here
-    date_of_birth: String,
-    namus_id: Option<String>,
-    // TODO: deserialize/parse here
-    missing_since: String,
-    synopsis: String,
+pub struct CreateInvestigationDetails {
+    pub internal_id: Option<String>,
+    pub first_name: String,
+    pub middle_name: Option<String>,
+    pub last_name: String,
+    pub date_of_birth: NaiveDate,
+    pub namus_id: Option<String>,
+    pub missing_since: NaiveDate,
+    pub synopsis: String,
+    pub questions: Vec<CreateQuestionDetails>,
 }
 
-// TODO: all of this needs cleanup
+#[derive(Debug, Deserialize)]
+pub struct CreateQuestionDetails {
+    pub pretty_id: String,
+    pub summary: String,
+    pub details: Option<String>,
+    pub investigation: Uuid,
+    pub outcome: Option<String>,
+    pub status: String,
+    pub action_items: Vec<CreateActionItemDetails>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateActionItemDetails {
+    pub pretty_id: String,
+    pub summary: String,
+    pub details: Option<String>,
+    pub outcome: Option<String>,
+    pub assignee: Option<Uuid>,
+    pub status: String,
+    pub resolved: Option<DateTime<Utc>>,
+}
+
 pub async fn create(
     State(state): State<AppState>,
-    Json(req): Json<CreateInvestigationRequest>,
+    Extension(user): Extension<User>,
+    Json(req): Json<CreateInvestigationDetails>,
 ) -> impl IntoResponse {
-    let date_of_birth = parse_form_date(&req.date_of_birth);
-    if date_of_birth.is_err() {
-        return (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "Invalid date of birth".to_string(),
-        );
-    }
-
-    let missing_since = parse_form_date(&req.missing_since);
-    if missing_since.is_err() {
-        return (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "Invalid date missing since".to_string(),
-        );
-    }
-
-    let res = Investigation::create(
-        State(state),
-        req.internal_id,
-        req.first_name,
-        req.middle_name,
-        req.last_name,
-        date_of_birth.unwrap(),
-        req.namus_id,
-        missing_since.unwrap(),
-        req.synopsis,
-    )
-    .await;
+    let res = Investigation::create(State(state), Extension(user), req).await;
 
     if res.is_err() {
         return (
