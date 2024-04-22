@@ -1,0 +1,35 @@
+name: NPM Build/Test
+
+on: [push, pull_request]
+
+jobs:
+  npm:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui/
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Restore dependencies
+      id: cache-npm-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: ui/node_modules
+        key: cache-npm-${{ hashFiles('ui/package-lock.json') }}
+
+    - name: Install dependencies
+      if: steps.cache-npm-restore.outputs.cache-hit != 'true'
+      run: npm install
+
+    - name: npm Build
+      run: npm run build
+
+    - name: Save dependencies
+      id: cache-npm-save
+      if: steps.cache-npm-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ui/node_modules
+        key: cache-npm-${{ hashFiles('ui/package-lock.json') }}
+

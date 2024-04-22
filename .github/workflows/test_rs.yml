@@ -1,0 +1,36 @@
+name: Cargo Build/Test
+
+on: [push, pull_request]
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  cargo:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      
+    - name: Restore cached build files
+      id: cache-cargo-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          /home/runner/.cargo
+          ${{ github.workspace }}/target
+        key: cache-cargo-${{ hashFiles('Cargo.toml') }}
+
+    - name: Cargo Check
+      run: cargo check --verbose
+
+    - name: Save dependencies
+      id: cache-cargo-save
+      if: steps.cache-cargo-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          /home/runner/.cargo
+          ${{ github.workspace }}/target
+        key: cache-cargo-${{ hashFiles('Cargo.toml') }}
+
