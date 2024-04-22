@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE users SET (\"otp\", \"otp_date\") = ($1, $2) WHERE \"id\" = $3",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Timestamptz",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "aa6dcb4a0a41d21e9810d238b8b510d375c007d33898aa8ba5ed76139fbce3c1"
+}
