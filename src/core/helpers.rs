@@ -8,7 +8,7 @@ use lettre::{
 
 use std::collections::HashMap;
 
-//TODO: we can apply these with serde
+//TODO: we can apply these with serde during deserialization
 pub fn parse_form_time(time: &str) -> Result<NaiveTime> {
     Ok(NaiveTime::parse_from_str(time, "%H:%M")?)
 }

@@ -3,6 +3,7 @@ use axum::extract::State;
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool};
+use ts_rs::TS;
 use url::Url;
 use uuid::Uuid;
 
@@ -33,7 +34,8 @@ impl std::fmt::Debug for User {
 
 // we also skip serializing potentially-sensitive fields here to prevent accidental
 // exposure - including fields we wouldn't worry about showing up in debug logs
-#[derive(Clone, Serialize, Deserialize, FromRow)]
+#[derive(Clone, Serialize, Deserialize, FromRow, TS)]
+#[ts(export)]
 pub struct User {
     pub id: Uuid,
     pub email: String,
