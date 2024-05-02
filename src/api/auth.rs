@@ -68,7 +68,6 @@ async fn login(
     private_jar: PrivateCookieJar,
     Json(body): Json<UserLoginRequest>,
 ) -> impl IntoResponse {
-    // TODO: a login seems to be looking up a user both by email and by id - minimal overhead but ensure necessary
     if let Ok(user) = User::get_by_email(State(state.clone()), &body.email).await {
         if let Ok(session) = user.log_in(State(state), &body.password).await {
             // this should overwrite an existing cookie
@@ -113,6 +112,7 @@ async fn logout(
 }
 
 // TODO: move this to core, to be safe, call it one final time before updating the database
+// TODO: change these to use axum::Json
 async fn password_posture(
     State(state): State<AppState>,
     Json(req): Json<UserPasswordPostureRequest>,

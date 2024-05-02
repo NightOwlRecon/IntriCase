@@ -26,19 +26,17 @@ pub fn router() -> Router<AppState> {
 
 pub async fn list(State(state): State<AppState>) -> impl IntoResponse {
     if let Ok(users) = users::get_all(&state.db).await {
-        return (StatusCode::OK, json!(users).to_string());
+        return axum::Json(users).into_response();
     }
-    (StatusCode::INTERNAL_SERVER_ERROR, String::new())
+    StatusCode::INTERNAL_SERVER_ERROR.into_response()
 }
 
 pub async fn invite(
     State(state): State<AppState>,
     Json(request): Json<CreateUserRequest>,
 ) -> impl IntoResponse {
-    let user = User::create(&state.db, &request.email).await;
-    match user {
-        // we return the (serializable) user details here to allow the admin to see the OTP
-        Ok(user) => (StatusCode::OK, json!(user).to_string()),
-        Err(_e) => (StatusCode::INTERNAL_SERVER_ERROR, String::new()),
+    if let Ok(user) = User::create(&state.db, &request.email).await {
+        return axum::Json(user).into_response();
     }
+    StatusCode::INTERNAL_SERVER_ERROR.into_response()
 }

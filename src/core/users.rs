@@ -96,9 +96,9 @@ impl User {
         let mut user = sqlx::query_as!(
             User,
             r#"
-        INSERT INTO users 
-            ("id", "email", "enabled", "created") 
-        VALUES 
+        INSERT INTO users
+            ("id", "email", "enabled", "created")
+        VALUES
             ($1, $2, $3, $4)
         RETURNING *
         "#,
@@ -219,7 +219,7 @@ impl User {
 }
 
 pub async fn get_all(db: &PgPool) -> Result<Vec<User>, sqlx::Error> {
-    sqlx::query_as!(User, "SELECT * FROM users")
+    sqlx::query_as!(User, "SELECT * FROM users ORDER BY display_name ASC")
         .fetch_all(db)
         .await
 }
