@@ -2,6 +2,7 @@
 	import {
 		Button,
 		Dropdown,
+		Heading,
 		Input,
 		Label,
 		Table,
@@ -39,7 +40,7 @@
 	getUsers();
 </script>
 
-<Button color="blue">Invite <Fa icon={faPlus} class="ml-3" pull="right" /></Button>
+<Button class="float-right" color="blue">Invite <Fa icon={faPlus} class="ml-3" pull="right" /></Button>
 <Dropdown class="m-4">
 	<!-- form defaults to multipart unless enctype is specified, making deserialization more painful on the backend -->
 	<form
@@ -56,6 +57,8 @@
 		</div>
 	</form>
 </Dropdown>
+
+<Heading class="mb-6">Manage Users</Heading>
 
 <Table>
 	<TableHead>

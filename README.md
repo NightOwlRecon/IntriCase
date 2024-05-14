@@ -21,6 +21,8 @@ translating the results to HTTP responses and response codes. It also handles re
 
 The `core` module is where the "meat" of the application lives. Everything in this module that is triggered by a web request should be called only by request handlers in the `api` module; no `axum` routers or otherwise should exist in `core`.
 
+TypeScript exports are currently done in multiple places throughout the back-end, but in the future, they should only come from the `api` module.
+
 To install the sqlx CLI, run the following after installing Rust: `cargo install sqlx-cli --no-default-features --features postgres,rustls`
 
 To create a new migration, run `sqlx migrate add <MIGRATION_NAME>`

@@ -1,7 +1,8 @@
 use axum::{extract::FromRef, Router};
 use axum_extra::extract::cookie::Key;
+use log::warn;
 use sqlx::PgPool;
-use tower_http::{services::ServeDir, trace::TraceLayer};
+use tower_http::{cors::CorsLayer, services::ServeDir, trace::TraceLayer};
 use tracing::*;
 
 /// The `api` module takes HTTP requests and forwards them to the underlying functions in `core`,
@@ -38,9 +39,19 @@ async fn main() {
 
     let state = AppState { db, key };
 
+    let env = std::env::var("ENV").unwrap();
+
+    let cors = match env.as_str() {
+        "DEV" => {
+            warn!("WARNING: CORS header is very permissive in DEV mode");
+            CorsLayer::very_permissive()
+        }
+        _ => CorsLayer::new(),
+    };
+
     let app = Router::new()
-        // for now, the api and each sub-module have their own nested routers
-        // in the future it might make more sense to have all of the routes in one place
+        // for now, the api and each submodule have their own nested routers
+        // in the future it might make more sense to have all the routes in one place
         // but for now this keeps things contained/encapsulated and keeps the module structure
         // and the api structure similar to one-another
         .nest("/api", api::router(state.clone()))
@@ -48,6 +59,7 @@ async fn main() {
         // TODO: now that we've nested the API routes under /api we probably don't need to do this
         // as a fallback if there's a more appropriate or performant method
         .fallback_service(ServeDir::new("ui/dist"))
+        .layer(cors)
         .layer(TraceLayer::new_for_http());
 
     info!("Listening on {}", std::env::var("LISTEN_ADDRESS").unwrap());

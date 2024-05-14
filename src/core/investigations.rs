@@ -1,6 +1,9 @@
 use crate::{api::admin::investigations::CreateInvestigationDetails, AppState};
 use anyhow::{Error, Result};
-use axum::{extract::{Request, State}, Extension};
+use axum::{
+    extract::{Request, State},
+    Extension,
+};
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -29,13 +32,39 @@ pub struct Investigation {
     pub questions: Option<HashMap<Uuid, Question>>,
 }
 
+pub async fn get_all(State(state): State<AppState>) -> Result<Vec<Investigation>, sqlx::Error> {
+    let res = sqlx::query!("SELECT * FROM investigations ORDER BY last_name ASC")
+        .fetch_all(&state.db)
+        .await?
+        .into_iter()
+        // we do this because the questions field does not exist in the database
+        // possibly some sqlx trickery possible to make this cleaner, but query_as! does not
+        // work with #[sqlx(skip)], for example
+        .map(|row| Investigation {
+            id: row.id,
+            created: row.created,
+            creator: row.creator,
+            internal_id: row.internal_id,
+            first_name: row.first_name,
+            middle_name: row.middle_name,
+            last_name: row.last_name,
+            date_of_birth: row.date_of_birth,
+            namus_id: row.namus_id,
+            missing_since: row.missing_since,
+            synopsis: row.synopsis,
+            questions: None,
+        })
+        .collect::<Vec<Investigation>>();
+    Ok(res)
+}
+
 impl Investigation {
     pub async fn create(
         State(state): State<AppState>,
         Extension(user): Extension<User>,
         details: CreateInvestigationDetails,
     ) -> Result<Uuid> {
-        let res = sqlx::query!(
+        let inv = sqlx::query!(
             "INSERT INTO investigations (id, created, creator, internal_id, first_name, middle_name, last_name, date_of_birth, namus_id, missing_since, synopsis) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id;",
             Uuid::new_v7(Timestamp::now(NoContext)),
             Utc::now(),
@@ -49,7 +78,23 @@ impl Investigation {
             details.missing_since,
             details.synopsis,
         ).fetch_one(&state.db).await?;
-        Ok(res.id)
+
+        for question in details.questions {
+            let question =
+                Question::create(State(state.clone()), Extension(user.clone()), question).await?;
+            for (_id, action_item) in question.action_items {
+                ActionItem::create(
+                    State(state.clone()),
+                    Extension(user.clone()),
+                    question.id,
+                    action_item.summary,
+                    action_item.details,
+                )
+                .await?;
+            }
+        }
+
+        Ok(inv.id)
     }
 
     pub async fn get(
@@ -250,7 +295,6 @@ impl ActionItem {
         State(state): State<AppState>,
         Extension(user): Extension<User>,
         question: Uuid,
-        creator: Uuid,
         summary: String,
         details: Option<String>,
     ) -> Result<ActionItem> {

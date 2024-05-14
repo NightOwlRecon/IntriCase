@@ -1,5 +1,7 @@
 <script lang="ts">
 	import {
+		Button,
+		Heading,
 		Table,
 		TableBody,
 		TableBodyCell,
@@ -7,6 +9,9 @@
 		TableHead,
 		TableHeadCell,
 	} from 'flowbite-svelte';
+
+	import { Fa } from 'svelte-fa';
+	import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 	import { nc } from '../../helpers';
 
@@ -21,6 +26,11 @@
 
 	getInvestigations();
 </script>
+
+<Button class="float-right" color="blue" href="/#/admin/investigations/create">Create <Fa icon={faPlus} class="ml-3" pull="right" /></Button>
+<Heading class="mb-6">Manage Investigations</Heading>
+
+<div class="clear-both"></div>
 
 <Table striped={false} hoverable={true}>
 	<TableHead>

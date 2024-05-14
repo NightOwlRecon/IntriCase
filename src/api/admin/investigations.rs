@@ -9,30 +9,35 @@ use axum::{
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::Deserialize;
 use serde_json::json;
+use ts_rs::TS;
 use uuid::Uuid;
 
 use crate::core::investigations::ActionItem;
 use crate::core::users::User;
 use crate::{core::helpers::parse_form_date, core::investigations::Investigation, AppState};
-
 pub fn router() -> Router<AppState> {
     Router::new().route("/create", post(create))
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, TS)]
+#[ts(export)]
 pub struct CreateInvestigationDetails {
     pub internal_id: Option<String>,
     pub first_name: String,
     pub middle_name: Option<String>,
     pub last_name: String,
+    // `NaiveDate` and other `chrono` structures are serialized/deserialized as RFC3339
     pub date_of_birth: NaiveDate,
     pub namus_id: Option<String>,
     pub missing_since: NaiveDate,
     pub synopsis: String,
+    // we use `default` here to give us an empty Vec if the field is not present
+    #[serde(default)]
     pub questions: Vec<CreateQuestionDetails>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, TS)]
+#[ts(export)]
 pub struct CreateQuestionDetails {
     pub pretty_id: String,
     pub summary: String,
@@ -40,10 +45,14 @@ pub struct CreateQuestionDetails {
     pub investigation: Uuid,
     pub outcome: Option<String>,
     pub status: String,
+    // in theory every question should have a minimum of one action item
+    // but we aren't enforcing that
+    #[serde(default)]
     pub action_items: Vec<CreateActionItemDetails>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, TS)]
+#[ts(export)]
 pub struct CreateActionItemDetails {
     pub pretty_id: String,
     pub summary: String,
@@ -59,14 +68,8 @@ pub async fn create(
     Extension(user): Extension<User>,
     Json(req): Json<CreateInvestigationDetails>,
 ) -> impl IntoResponse {
-    let res = Investigation::create(State(state), Extension(user), req).await;
-
-    if res.is_err() {
-        return (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "Failed to create investigation".to_string(),
-        );
+    if let Ok(res) = Investigation::create(State(state), Extension(user), req).await {
+        return axum::Json(res).into_response();
     }
-
-    (StatusCode::OK, json!(res.unwrap()).to_string())
+    StatusCode::INTERNAL_SERVER_ERROR.into_response()
 }
