@@ -63,9 +63,9 @@ impl Investigation {
         State(state): State<AppState>,
         Extension(user): Extension<User>,
         details: CreateInvestigationDetails,
-    ) -> Result<Uuid> {
-        let inv = sqlx::query!(
-            "INSERT INTO investigations (id, created, creator, internal_id, first_name, middle_name, last_name, date_of_birth, namus_id, missing_since, synopsis) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id;",
+    ) -> Result<Investigation> {
+        let res = sqlx::query!(
+            "INSERT INTO investigations (id, created, creator, internal_id, first_name, middle_name, last_name, date_of_birth, namus_id, missing_since, synopsis) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *;",
             Uuid::new_v7(Timestamp::now(NoContext)),
             Utc::now(),
             user.id,
@@ -79,9 +79,25 @@ impl Investigation {
             details.synopsis,
         ).fetch_one(&state.db).await?;
 
+        let investigation = Investigation {
+            id: res.id,
+            created: res.created,
+            creator: res.creator,
+            internal_id: res.internal_id,
+            first_name: res.first_name,
+            middle_name: res.middle_name,
+            last_name: res.last_name,
+            date_of_birth: res.date_of_birth,
+            namus_id: res.namus_id,
+            missing_since: res.missing_since,
+            synopsis: res.synopsis,
+            questions: None,
+        };
+
         for question in details.questions {
-            let question =
-                Question::create(State(state.clone()), Extension(user.clone()), question).await?;
+            let question = investigation
+                .add_question(State(state.clone()), Extension(user.clone()), question)
+                .await?;
             for (_id, action_item) in question.action_items {
                 ActionItem::create(
                     State(state.clone()),
@@ -94,7 +110,7 @@ impl Investigation {
             }
         }
 
-        Ok(inv.id)
+        Ok(investigation)
     }
 
     pub async fn get(
@@ -130,6 +146,38 @@ impl Investigation {
         }
 
         Ok(investigation)
+    }
+
+    pub async fn add_question(
+        &self,
+        State(state): State<AppState>,
+        Extension(user): Extension<User>,
+        details: CreateQuestionDetails,
+    ) -> Result<Question> {
+        let res = sqlx::query!(
+            "INSERT INTO questions (id, created, creator, pretty_id, summary, details, investigation, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;",
+            Uuid::new_v7(Timestamp::now(NoContext)),
+            Utc::now(),
+            user.id,
+            details.pretty_id,
+            details.summary,
+            details.details,
+            self.id,
+            details.status,
+        ).fetch_one(&state.db).await?;
+        Ok(Question {
+            id: res.id,
+            creator: res.creator,
+            created: res.created,
+            pretty_id: res.pretty_id,
+            summary: res.summary,
+            details: res.details,
+            investigation: res.investigation,
+            outcome: res.outcome,
+            status: res.status,
+            // TODO: see if we can make this or similar happen within sqlx so we can use query_as!()
+            action_items: HashMap::new(),
+        })
     }
 
     pub async fn get_questions(&mut self, State(state): State<AppState>) -> Result<()> {
@@ -254,40 +302,6 @@ impl Question {
         .await
         .map_err(Error::from)
     }
-
-    pub async fn create(
-        State(state): State<AppState>,
-        Extension(user): Extension<User>,
-        details: CreateQuestionDetails,
-    ) -> Result<Question> {
-        let res = sqlx::query!(
-            "INSERT INTO questions (id, created, creator, pretty_id, summary, details, investigation, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;",
-            Uuid::new_v7(Timestamp::now(NoContext)),
-            Utc::now(),
-            user.id,
-            details.pretty_id,
-            details.summary,
-            details.details,
-            details.investigation,
-            details.status,
-        ).fetch_one(&state.db).await?;
-        Ok(Question {
-            id: res.id,
-            creator: res.creator,
-            created: res.created,
-            pretty_id: res.pretty_id,
-            summary: res.summary,
-            details: res.details,
-            investigation: res.investigation,
-            outcome: res.outcome,
-            status: res.status,
-            // TODO: see if we can make this or similar happen within sqlx so we can use query_as!()
-            action_items: HashMap::new(),
-        })
-    }
-
-    pub async fn add_action_item(&self, State(state): State<AppState>) {}
-    pub async fn status(&self, State(state): State<AppState>) {}
 }
 
 impl ActionItem {
