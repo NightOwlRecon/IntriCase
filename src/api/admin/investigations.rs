@@ -42,7 +42,6 @@ pub struct CreateQuestionDetails {
     pub pretty_id: String,
     pub summary: String,
     pub details: Option<String>,
-    pub investigation: Uuid,
     pub outcome: Option<String>,
     pub status: String,
     // in theory every question should have a minimum of one action item
