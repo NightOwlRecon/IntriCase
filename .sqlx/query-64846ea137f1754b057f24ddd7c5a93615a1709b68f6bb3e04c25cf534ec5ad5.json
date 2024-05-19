@@ -1,0 +1,92 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO investigations (id, created, creator, internal_id, first_name, middle_name, last_name, date_of_birth, namus_id, missing_since, synopsis) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *;",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "creator",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "internal_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "first_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "middle_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "last_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "date_of_birth",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 8,
+        "name": "namus_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "missing_since",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 10,
+        "name": "synopsis",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Date",
+        "Text",
+        "Date",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "64846ea137f1754b057f24ddd7c5a93615a1709b68f6bb3e04c25cf534ec5ad5"
+}
