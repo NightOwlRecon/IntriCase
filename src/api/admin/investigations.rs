@@ -36,7 +36,7 @@ pub struct CreateInvestigationDetails {
     pub questions: Vec<CreateQuestionDetails>,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Clone, Debug, Deserialize, TS)]
 #[ts(export)]
 pub struct CreateQuestionDetails {
     pub pretty_id: String,
@@ -50,7 +50,7 @@ pub struct CreateQuestionDetails {
     pub action_items: Vec<CreateActionItemDetails>,
 }
 
-#[derive(Debug, Deserialize, TS)]
+#[derive(Clone, Debug, Deserialize, TS)]
 #[ts(export)]
 pub struct CreateActionItemDetails {
     pub pretty_id: String,

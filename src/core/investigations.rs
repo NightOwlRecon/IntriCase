@@ -1,16 +1,17 @@
-use crate::{api::admin::investigations::CreateInvestigationDetails, AppState};
 use anyhow::{Error, Result};
-use axum::{
-    extract::{Request, State},
-    Extension,
-};
+use axum::{extract::State, Extension};
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 use uuid::{NoContext, Timestamp, Uuid};
 
-use crate::api::admin::investigations::CreateQuestionDetails;
-use crate::core::users::User;
+use crate::{
+    api::admin::investigations::{
+        CreateActionItemDetails, CreateInvestigationDetails, CreateQuestionDetails,
+    },
+    core::users::User,
+    AppState,
+};
 use std::collections::HashMap;
 
 #[derive(Debug, Deserialize, Serialize, sqlx::FromRow, TS)]
@@ -94,19 +95,18 @@ impl Investigation {
             questions: None,
         };
 
-        for question in details.questions {
+        for new_question in details.questions {
             let question = investigation
-                .add_question(State(state.clone()), Extension(user.clone()), question)
-                .await?;
-            for (_id, action_item) in question.action_items {
-                ActionItem::create(
+                .add_question(
                     State(state.clone()),
                     Extension(user.clone()),
-                    question.id,
-                    action_item.summary,
-                    action_item.details,
+                    new_question.clone(),
                 )
                 .await?;
+            for action_item in new_question.action_items {
+                question
+                    .add_action_item(State(state.clone()), Extension(user.clone()), action_item)
+                    .await?;
             }
         }
 
@@ -302,15 +302,12 @@ impl Question {
         .await
         .map_err(Error::from)
     }
-}
 
-impl ActionItem {
-    pub async fn create(
+    pub async fn add_action_item(
+        &self,
         State(state): State<AppState>,
         Extension(user): Extension<User>,
-        question: Uuid,
-        summary: String,
-        details: Option<String>,
+        details: CreateActionItemDetails,
     ) -> Result<ActionItem> {
         let res = sqlx::query_as!(
             ActionItem,
@@ -319,14 +316,16 @@ impl ActionItem {
             Utc::now(),
             user.id,
             "",
-            summary,
-            details,
-            question,
+            details.summary,
+            details.details,
+            self.id,
             "open"
         ).fetch_one(&state.db).await?;
         Ok(res)
     }
+}
 
+impl ActionItem {
     pub async fn get_by_user(State(state): State<AppState>, user: Uuid) -> Result<Vec<ActionItem>> {
         sqlx::query_as!(
             ActionItem,
