@@ -155,24 +155,24 @@
 	<div class="flex mb-4">
 		<div class="mr-4">
 			<Label for="first_name">First Name</Label>
-			<Input name="first_name" bind:value={newInvestigation.first_name} />
+			<Input id="first_name" name="first_name" bind:value={newInvestigation.first_name} />
 		</div>
 
 		<div class="mr-4">
 			<Label for="middle_name">Middle Name (optional)</Label>
-			<Input name="middle_name" bind:value={newInvestigation.middle_name} />
+			<Input id="middle_name" name="middle_name" bind:value={newInvestigation.middle_name} />
 		</div>
 
 		<div class="">
 			<Label for="last_name">Last Name</Label>
-			<Input name="last_name" bind:value={newInvestigation.last_name} />
+			<Input id="last_name" name="last_name" bind:value={newInvestigation.last_name} />
 		</div>
 	</div>
 
 	<div class="flex mb-8">
 		<div class="">
 			<Label for="date_of_birth">Date of Birth (YYYY-MM-DD)</Label>
-			<Input name="date_of_birth" placeholder="YYYY-MM-DD" bind:value={newInvestigation.date_of_birth} />
+			<Input id="date_of_birth" name="date_of_birth" placeholder="YYYY-MM-DD" bind:value={newInvestigation.date_of_birth} />
 		</div>
 	</div>
 
@@ -180,22 +180,22 @@
 	<div class="flex mb-4">
 		<div class="mr-4">
 			<Label for="missing_since">Missing Since (YYYY-MM-DD)</Label>
-			<Input name="missing_since" placeholder="YYYY-MM-DD" bind:value={newInvestigation.missing_since} />
+			<Input id="missing_since" name="missing_since" placeholder="YYYY-MM-DD" bind:value={newInvestigation.missing_since} />
 		</div>
 		<div class="mr-4">
 			<Label for="internal_id">Internal ID (optional)</Label>
-			<Input name="internal_id" bind:value={newInvestigation.internal_id} />
+			<Input id="internal_id" name="internal_id" bind:value={newInvestigation.internal_id} />
 		</div>
 		<div class="">
 			<Label for="namus_id">NamUs ID (optional - MPxxxxx)</Label>
-			<Input name="namus_id" placeholder="MPxxxxx" bind:value={newInvestigation.namus_id} />
+			<Input id="namus_id" name="namus_id" placeholder="MPxxxxx" bind:value={newInvestigation.namus_id} />
 		</div>
 	</div>
 
 	<div class="flex mb-8">
 		<div class="w-full">
 			<Label for="synopsis">Synopsis</Label>
-			<Textarea name="synopsis" rows="8" class="w-full" bind:value={newInvestigation.synopsis} />
+			<Textarea id="synopsis" name="synopsis" rows="8" class="w-full" bind:value={newInvestigation.synopsis} />
 		</div>
 	</div>
 
@@ -205,7 +205,7 @@
 	<Dropdown class="m-4">
 		<Label class="" for="addQuestion">Question</Label>
 		<form on:submit|preventDefault={addQuestion}>
-			<Input class="mb-4" name="addQuestion" placeholder="Question" />
+			<Input id="addQuestion" class="mb-4" name="addQuestion" placeholder="Question" />
 			<Button type="submit" color="green">Add</Button>
 		</form>
 	</Dropdown>
