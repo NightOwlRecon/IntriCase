@@ -1,7 +1,3 @@
-// submits a form's data asynchronously as a JSON blob,
-// deriving all values from the form itself
-// you can wrap this in another function to deal with return data and perform
-// context-specific actions
 import type { ZodError } from 'zod';
 
 const nc = (s: any) => {
@@ -9,6 +5,10 @@ const nc = (s: any) => {
 };
 
 const handleSubmitJson = async (e: Event): Promise<Response> => {
+	// submits a form's data asynchronously as a JSON blob,
+	// deriving all values from the form itself
+	// you can wrap this in another function to deal with return data and perform
+	// context-specific actions
 	if (!(e.target instanceof HTMLFormElement)) throw new Error('Not called on HTMLFormElement');
 
 	e.target.querySelector('button[type="submit"]')?.setAttribute('disabled', 'disabled');
