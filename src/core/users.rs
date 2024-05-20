@@ -34,6 +34,7 @@ impl std::fmt::Debug for User {
 
 // we also skip serializing potentially-sensitive fields here to prevent accidental
 // exposure - including fields we wouldn't worry about showing up in debug logs
+// TODO: define an intermediary User type without sensitive fields to be extra-careful
 #[derive(Clone, Serialize, Deserialize, FromRow, TS)]
 #[ts(export)]
 pub struct User {
