@@ -35,6 +35,14 @@
 		console.log(newInvestigation);
 	};
 
+	const getUsers = async () => {
+		const res = await fetch('/api/users');
+		if (!res.ok) throw new Error('Failed to fetch users');
+		return await res.json();
+	}
+
+	const users = getUsers();
+
 	const CreateInvestigationSchema = z.object({
 		first_name: z.string(),
 		middle_name: z.string().optional(),
@@ -117,7 +125,6 @@
 			pretty_id: (newInvestigation.questions.length + 1).toString(),
 			summary: e.target.addQuestion.value,
 			details: '',
-			investigation: '',
 			status: '',
 			outcome: '',
 			action_items: [],
