@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { Button, Dropdown, Heading, Input, Label, Textarea } from 'flowbite-svelte';
+	import { Button, Heading, Input, Label, Textarea } from 'flowbite-svelte';
+
+	import { users } from "../../stores";
 
 	import {
 		handleSubmitJson,
@@ -29,19 +31,43 @@
 		questions: [],
 	};
 	// not sure if this is necessary
-	$: newInvestigation.questions = [];
-
-	const lol = () => {
-		console.log(newInvestigation);
-	};
+	$: newInvestigation.questions = [
+		{
+			pretty_id: '1',
+			summary: '',
+			details: '',
+			status: '',
+			outcome: '',
+			action_items: [
+				{
+					pretty_id: '1.1',
+					summary: '',
+					status: '',
+					details: '',
+					outcome: '',
+					assignee: '',
+					resolved: '',
+				},
+			],
+		},
+	];
 
 	const getUsers = async () => {
 		const res = await fetch('/api/users');
 		if (!res.ok) throw new Error('Failed to fetch users');
-		return await res.json();
+		let users = await res.json();
+
+		let formatted = users.map((user) => {
+			return {
+				value: user.id,
+				name: user.display_name,
+			};
+		});
+
+		$users = formatted;
 	}
 
-	const users = getUsers();
+	getUsers();
 
 	const CreateInvestigationSchema = z.object({
 		first_name: z.string(),

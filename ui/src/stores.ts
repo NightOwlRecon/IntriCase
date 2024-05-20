@@ -4,4 +4,6 @@ import { type User } from './typedefs';
 
 let userDetails: Writable<undefined | User> = writable(undefined);
 
-export { userDetails };
+let users: Writable<[]> = writable([]);
+
+export { userDetails, users };
