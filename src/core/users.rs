@@ -42,6 +42,7 @@ pub struct User {
     display_name: Option<String>,
     enabled: bool,
     created: DateTime<Utc>,
+    #[serde(skip_serializing)]
     otp: Option<String>,
     #[serde(skip_serializing)]
     secret: Option<String>,
