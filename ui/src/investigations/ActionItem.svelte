@@ -1,6 +1,9 @@
 <script lang="ts">
-	import { Badge, Button, Input, Label, ListgroupItem, Textarea } from 'flowbite-svelte';
+	import {Badge, Button, Input, Label, ListgroupItem, Select, Textarea} from 'flowbite-svelte';
 	import type { CreateActionItemDetails } from '../bindings/CreateActionItemDetails';
+
+	import { users } from '../stores';
+
 
 	export let editing: boolean = false;
 
@@ -53,8 +56,12 @@
 		___.{actionItem.pretty_id}.
 		<Label for="summary">Summary</Label>
 		<Input name="summary" bind:value={actionItem.summary} />
+
 		<Label for="details">Details</Label>
 		<Textarea name="details" bind:value={actionItem.details} />
+
+		<Select name="assignee" items={$users}/>
+
 		<Button color="blue">Save</Button>
 	</ListgroupItem>
 {/if}
