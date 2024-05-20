@@ -23,7 +23,7 @@
 
 	let actionItems: CreateActionItemDetails[] = [];
 
-	const addActionItem = (e: Event) => {
+	const addActionItem = (_e: Event) => {
 		actionItems = [
 			...actionItems,
 			{

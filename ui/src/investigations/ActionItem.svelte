@@ -6,6 +6,8 @@
 
 	export let editing: boolean = false;
 
+	let assignee = 'unassigned';
+
 	export let actionItem: CreateActionItemDetails = {
 		pretty_id: '',
 		summary: '',
@@ -59,7 +61,12 @@
 		<Label for="details">Details</Label>
 		<Textarea name="details" bind:value={actionItem.details} />
 
-		<Select name="assignee" items={[{value: 'unassigned', name: 'Unassigned'}, ...$users]} />
+		<!-- We add unassigned to the top of the list of users as a default value -->
+		<Select
+			name="assignee"
+			items={[{ value: 'unassigned', name: 'Unassigned' }, ...$users]}
+			bind:value={assignee}
+		/>
 
 		<Button color="blue">Save</Button>
 	</ListgroupItem>
