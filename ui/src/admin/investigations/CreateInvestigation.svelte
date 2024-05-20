@@ -18,6 +18,7 @@
 	import type { CreateQuestionDetails } from '../../bindings/CreateQuestionDetails';
 
 	import QuestionItem from '../../investigations/Question.svelte';
+	import type {User} from "../../bindings/User";
 
 	let newInvestigation: CreateInvestigationDetails = {
 		first_name: '',
@@ -57,7 +58,7 @@
 		if (!res.ok) throw new Error('Failed to fetch users');
 		let users = await res.json();
 
-		let formatted = users.map((user) => {
+		let formatted = users.map((user: User) => {
 			return {
 				value: user.id,
 				name: user.display_name,
