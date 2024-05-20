@@ -88,7 +88,7 @@
 		<Heading tag="h4" class="mt-4 mb-4">Action Items</Heading>
 		<Listgroup>
 			{#each actionItems as actionItem}
-				<ActionItem bind:actionItem />
+				<ActionItem editing={true} bind:actionItem />
 			{/each}
 		</Listgroup>
 	</AccordionItem>
