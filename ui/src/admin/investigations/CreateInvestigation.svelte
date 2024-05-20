@@ -120,10 +120,9 @@
 	// };
 
 	const addQuestion = (e: Event) => {
-		if (!(e.target instanceof HTMLFormElement)) throw new Error('Not called on HTMLFormElement');
 		const newQuestion: CreateQuestionDetails = {
 			pretty_id: (newInvestigation.questions.length + 1).toString(),
-			summary: e.target.addQuestion.value,
+			summary: '',
 			details: '',
 			status: '',
 			outcome: '',
@@ -206,16 +205,9 @@
 		</div>
 	</div>
 
-	<Button class="float-right" color="green" on:click={lol}>
+	<Button class="float-right" color="green" on:click={addQuestion}>
 		Add Question <Fa class="inline-block ml-2" icon={faPlus} />
 	</Button>
-	<Dropdown class="m-4">
-		<Label class="" for="addQuestion">Question</Label>
-		<form on:submit|preventDefault={addQuestion}>
-			<Input id="addQuestion" class="mb-4" name="addQuestion" placeholder="Question" />
-			<Button type="submit" color="green">Add</Button>
-		</form>
-	</Dropdown>
 
 	<Heading tag="h3" class="mb-4">Initial Questions</Heading>
 	<div class="mb-8">
