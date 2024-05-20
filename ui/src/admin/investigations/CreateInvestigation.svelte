@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button, Heading, Input, Label, Textarea } from 'flowbite-svelte';
 
-	import { users } from "../../stores";
+	import { users } from '../../stores';
 
 	import {
 		handleSubmitJson,
@@ -18,7 +18,7 @@
 	import type { CreateQuestionDetails } from '../../bindings/CreateQuestionDetails';
 
 	import QuestionItem from '../../investigations/Question.svelte';
-	import type {User} from "../../bindings/User";
+	import type { User } from '../../bindings/User';
 
 	let newInvestigation: CreateInvestigationDetails = {
 		first_name: '',
@@ -66,7 +66,7 @@
 		});
 
 		$users = formatted;
-	}
+	};
 
 	getUsers();
 
@@ -205,7 +205,12 @@
 	<div class="flex mb-8">
 		<div class="">
 			<Label for="date_of_birth">Date of Birth (YYYY-MM-DD)</Label>
-			<Input id="date_of_birth" name="date_of_birth" placeholder="YYYY-MM-DD" bind:value={newInvestigation.date_of_birth} />
+			<Input
+				id="date_of_birth"
+				name="date_of_birth"
+				placeholder="YYYY-MM-DD"
+				bind:value={newInvestigation.date_of_birth}
+			/>
 		</div>
 	</div>
 
@@ -213,7 +218,12 @@
 	<div class="flex mb-4">
 		<div class="mr-4">
 			<Label for="missing_since">Missing Since (YYYY-MM-DD)</Label>
-			<Input id="missing_since" name="missing_since" placeholder="YYYY-MM-DD" bind:value={newInvestigation.missing_since} />
+			<Input
+				id="missing_since"
+				name="missing_since"
+				placeholder="YYYY-MM-DD"
+				bind:value={newInvestigation.missing_since}
+			/>
 		</div>
 		<div class="mr-4">
 			<Label for="internal_id">Internal ID (optional)</Label>
@@ -221,14 +231,25 @@
 		</div>
 		<div class="">
 			<Label for="namus_id">NamUs ID (optional - MPxxxxx)</Label>
-			<Input id="namus_id" name="namus_id" placeholder="MPxxxxx" bind:value={newInvestigation.namus_id} />
+			<Input
+				id="namus_id"
+				name="namus_id"
+				placeholder="MPxxxxx"
+				bind:value={newInvestigation.namus_id}
+			/>
 		</div>
 	</div>
 
 	<div class="flex mb-8">
 		<div class="w-full">
 			<Label for="synopsis">Synopsis</Label>
-			<Textarea id="synopsis" name="synopsis" rows="8" class="w-full" bind:value={newInvestigation.synopsis} />
+			<Textarea
+				id="synopsis"
+				name="synopsis"
+				rows="8"
+				class="w-full"
+				bind:value={newInvestigation.synopsis}
+			/>
 		</div>
 	</div>
 
