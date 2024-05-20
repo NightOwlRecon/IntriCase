@@ -15,14 +15,10 @@
 	const routeLoaded = (e: RouteLoadedEvent) => {
 		// restore scroll state ?
 		// store in "recent" list locally
-		console.log(e.detail);
-		console.log(window.location);
 	};
 
 	const routeLoading = (e: RouteLoadingEvent) => {
 		// store scroll state ?
-		console.log(e.detail);
-		console.log(window.location);
 	};
 
 	const routes = {
