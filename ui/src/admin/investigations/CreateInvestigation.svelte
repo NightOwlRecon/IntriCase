@@ -259,8 +259,8 @@
 
 	<Heading tag="h3" class="mb-4">Initial Questions</Heading>
 	<div class="mb-8">
-		{#each newInvestigation.questions as _question, i}
-			<QuestionItem bind:question={newInvestigation.questions[i]} />
+		{#each newInvestigation.questions as question}
+			<QuestionItem bind:question />
 		{/each}
 	</div>
 
