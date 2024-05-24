@@ -87,7 +87,7 @@
 		</Button>
 		<Heading tag="h4" class="mt-4 mb-4">Action Items</Heading>
 		<Listgroup>
-			{#each actionItems as actionItem}
+			{#each actionItems as actionItem, i}
 				<ActionItem editing={true} bind:actionItem />
 			{/each}
 		</Listgroup>
