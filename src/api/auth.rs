@@ -133,14 +133,14 @@ async fn password_posture(
     }
 
     if let Ok(user) = User::get_by_id(State(state), &req.id).await {
-        if let Ok(entropy) = zxcvbn(&req.password, &[&user.email, &req.display_name]) {
-            // per zxcvbn docs, 3 is the minimum threshold for a "good" password
-            // will increase this later after playing with some test values
-            debug!("ENTROPY {:?}", entropy);
-            if entropy.score() > 3 {
-                return json!({"valid": true, "reason": ""}).to_string();
-            }
+        let entropy = zxcvbn(&req.password, &[&user.email, &req.display_name]);
+        // per zxcvbn docs, 3 is the minimum threshold for a "good" password
+        // will increase this later after playing with some test values
+        debug!("ENTROPY {:?}", entropy);
+        if entropy.score() as u8 > 3 {
+            return json!({"valid": true, "reason": ""}).to_string();
         }
+
         return json!({"valid": false, "reason": "Password complexity too low, or contains parts of user email or display name"}).to_string();
     }
     json!({"valid": false, "reason": "Other error"}).to_string()
