@@ -62,9 +62,8 @@ async fn main() {
         .layer(cors)
         .layer(TraceLayer::new_for_http());
 
-    info!("Listening on {}", std::env::var("LISTEN_ADDRESS").unwrap());
-    let listener = tokio::net::TcpListener::bind(std::env::var("LISTEN_ADDRESS").unwrap())
-        .await
-        .unwrap();
+    let listen_addr = std::env::var("LISTEN_ADDRESS").unwrap();
+    info!("Listening on {}", listen_addr);
+    let listener = tokio::net::TcpListener::bind(listen_addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
