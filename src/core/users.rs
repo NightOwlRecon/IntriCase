@@ -225,3 +225,9 @@ pub async fn get_all(db: &PgPool) -> Result<Vec<User>, sqlx::Error> {
         .fetch_all(db)
         .await
 }
+
+pub async fn get_all_enabled(db: &PgPool) -> Result<Vec<User>, sqlx::Error> {
+    sqlx::query_as!(User, "SELECT * FROM users WHERE enabled = true ORDER BY display_name ASC")
+        .fetch_all(db)
+        .await
+}
