@@ -4,8 +4,7 @@
 		Button,
 		Heading,
 		Input,
-		Label,
-		Listgroup,
+		Label, Listgroup,
 		Progressbar,
 		Textarea,
 	} from 'flowbite-svelte';
@@ -21,13 +20,11 @@
 
 	export let editing: boolean = true;
 
-	let actionItems: CreateActionItemDetails[] = [];
-
 	const addActionItem = (_e: Event) => {
-		actionItems = [
-			...actionItems,
+		question.action_items = [
+			...question.action_items,
 			{
-				pretty_id: `${question.pretty_id}.${actionItems.length + 1}`,
+				pretty_id: `${question.pretty_id}.${question.action_items.length + 1}`,
 				summary: '',
 				status: 'not_started',
 				details: '',
@@ -38,9 +35,8 @@
 		];
 	};
 
-	$: actionItems = Object.values(question.action_items);
 	$: progress =
-		(actionItems.filter((item) => item.status === 'completed').length / actionItems.length) * 100;
+		(question.action_items.filter((item) => item.status === 'completed').length / question.action_items.length) * 100;
 </script>
 
 {#if !editing}
@@ -61,10 +57,10 @@
 
 		<p>{question.details}</p>
 
-		{#if actionItems.length > 0}
+		{#if question.action_items.length > 0}
 			<Heading tag="h4" class="mt-4 mb-4">Action Items</Heading>
 			<Listgroup>
-				{#each actionItems as actionItem}
+				{#each question.action_items as actionItem}
 					<ActionItem bind:actionItem />
 				{/each}
 			</Listgroup>
@@ -81,13 +77,13 @@
 		</div>
 		<Heading tag="h6" class="mt-4 mb-4">Details</Heading>
 		<Label for="details">Details</Label>
-		<Textarea name="details" rows="8" class="w-full" bind:value={question.details} />
+		<Textarea name="details" rows="8" class="w-full mb-4" bind:value={question.details} />
 		<Button class="float-right" color="green" on:click={addActionItem}>
-			Add <Fa class="inline-block ml-2" icon={faPlus} />
+			Add Action Item <Fa class="inline-block ml-2" icon={faPlus} />
 		</Button>
-		<Heading tag="h4" class="mt-4 mb-4">Action Items</Heading>
+		<Heading tag="h4" class="mb-4">Action Items</Heading>
 		<Listgroup>
-			{#each actionItems as actionItem}
+			{#each question.action_items as actionItem}
 				<ActionItem {editing} bind:actionItem />
 			{/each}
 		</Listgroup>
