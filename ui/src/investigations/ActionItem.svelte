@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Badge, Button, Input, Label, ListgroupItem, Select, Textarea } from 'flowbite-svelte';
+	import { Badge, Button, Heading, Input, Label, ListgroupItem, Select, Textarea } from 'flowbite-svelte';
 	import type { CreateActionItemDetails } from '../bindings/CreateActionItemDetails';
 
 	import { users } from '../stores';
@@ -54,16 +54,18 @@
 	</ListgroupItem>
 {:else}
 	<ListgroupItem>
-		___.{actionItem.pretty_id}.
+		<Heading class="mb-4" tag="h6">___.{actionItem.pretty_id}.</Heading>
 		<Label for="summary">Summary</Label>
-		<Input name="summary" bind:value={actionItem.summary} />
+		<Input class="mb-4" name="summary" bind:value={actionItem.summary} />
 
 		<Label for="details">Details</Label>
-		<Textarea name="details" bind:value={actionItem.details} />
+		<Textarea class="mb-4" name="details" bind:value={actionItem.details} />
 
 		<!-- We add unassigned to the top of the list of users as a default value -->
+		<Label for="assignee">Assignee</Label>
 		<Select
 			name="assignee"
+			class="mb-4"
 			items={[{ value: 'unassigned', name: 'Unassigned' }, ...$users]}
 			bind:value={assignee}
 		/>
