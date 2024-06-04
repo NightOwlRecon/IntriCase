@@ -44,7 +44,7 @@
 		}
 	};
 
-	const saveActionItem = () => {
+	const saveActionItem = (_e: Event) => {
 		editing = false;
 	}
 </script>
@@ -74,6 +74,6 @@
 			bind:value={assignee}
 		/>
 
-		<Button color="blue" on:click={saveActionItem}>Save</Button>
+		<Button color="blue" on:click={saveActionItem}>Save Action Item</Button>
 	</ListgroupItem>
 {/if}
