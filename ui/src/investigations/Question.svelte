@@ -14,7 +14,6 @@
 	import ActionItem from './ActionItem.svelte';
 
 	import type { CreateQuestionDetails } from '../bindings/CreateQuestionDetails';
-	import type { CreateActionItemDetails } from '../bindings/CreateActionItemDetails';
 
 	export let question: CreateQuestionDetails;
 
@@ -37,6 +36,10 @@
 
 	$: progress =
 		(question.action_items.filter((item) => item.status === 'completed').length / question.action_items.length) * 100;
+
+		const saveQuestion = (_e: Event) => {
+			editing = false;
+		}
 </script>
 
 {#if !editing}
@@ -87,5 +90,6 @@
 				<ActionItem {editing} bind:actionItem />
 			{/each}
 		</Listgroup>
+		<Button color="blue" on:click={saveQuestion}>Save Question</Button>
 	</AccordionItem>
 {/if}
