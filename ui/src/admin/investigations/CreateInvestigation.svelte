@@ -43,7 +43,7 @@
 				{
 					pretty_id: '1.1',
 					summary: '',
-					status: '',
+					status: 'not_started',
 					details: '',
 					outcome: '',
 					assignee: '',
