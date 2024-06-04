@@ -10,7 +10,7 @@
 	} from 'flowbite-svelte';
 
 	import Fa from 'svelte-fa';
-	import { faPlus } from '@fortawesome/free-solid-svg-icons';
+	import { faPencil, faPlus } from '@fortawesome/free-solid-svg-icons';
 	import ActionItem from './ActionItem.svelte';
 
 	import type { CreateQuestionDetails } from '../bindings/CreateQuestionDetails';
@@ -46,6 +46,7 @@
 	<AccordionItem>
 		<div slot="header" class="flex w-full">
 			<div class="flex-grow">{question.pretty_id}. {question.summary}</div>
+			<Button color="light" on:click={() => editing = true}>Edit <Fa class="inline-block ml-2" icon={faPencil} /></Button>
 
 			{#if progress}
 				<Progressbar
