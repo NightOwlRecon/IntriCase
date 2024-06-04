@@ -43,6 +43,10 @@
 				return 'Not Started';
 		}
 	};
+
+	const saveActionItem = () => {
+		editing = false;
+	}
 </script>
 
 {#if !editing}
@@ -70,6 +74,6 @@
 			bind:value={assignee}
 		/>
 
-		<Button color="blue">Save</Button>
+		<Button color="blue" on:click={saveActionItem}>Save</Button>
 	</ListgroupItem>
 {/if}
