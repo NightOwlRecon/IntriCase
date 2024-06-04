@@ -4,6 +4,8 @@
 
 	import { users } from '../stores';
 
+	import Fa from 'svelte-fa';
+	import { faPencil } from '@fortawesome/free-solid-svg-icons';
 	export let editing: boolean = false;
 
 	let assignee = 'unassigned';
@@ -52,6 +54,7 @@
 {#if !editing}
 	<ListgroupItem>
 		___.{actionItem.pretty_id}. {actionItem.summary}
+		<Button size="xs" class="float-right ml-2 pt-0.5 pb-0.5" color="light" on:click={() => editing = true}>Edit <Fa class="inline-block ml-2" icon={faPencil} /></Button>
 		<Badge class="float-right" color={getStatusColor(actionItem.status)}>
 			{getStatusText(actionItem.status)}
 		</Badge>
