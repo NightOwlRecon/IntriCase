@@ -1,5 +1,14 @@
 <script lang="ts">
-	import { Badge, Button, Heading, Input, Label, ListgroupItem, Select, Textarea } from 'flowbite-svelte';
+	import {
+		Badge,
+		Button,
+		Heading,
+		Input,
+		Label,
+		ListgroupItem,
+		Select,
+		Textarea,
+	} from 'flowbite-svelte';
 	import type { CreateActionItemDetails } from '../bindings/CreateActionItemDetails';
 
 	import { users } from '../stores';
@@ -48,13 +57,20 @@
 
 	const saveActionItem = (_e: Event) => {
 		editing = false;
-	}
+	};
 </script>
 
 {#if !editing}
 	<ListgroupItem>
 		___.{actionItem.pretty_id}. {actionItem.summary}
-		<Button size="xs" class="float-right ml-2 pt-0.5 pb-0.5" color="light" on:click={() => editing = true}>Edit <Fa class="inline-block ml-2" icon={faPencil} /></Button>
+		<Button
+			size="xs"
+			class="float-right ml-2 pt-0.5 pb-0.5"
+			color="light"
+			on:click={() => (editing = true)}
+		>
+			Edit <Fa class="inline-block ml-2" icon={faPencil} />
+		</Button>
 		<Badge class="float-right" color={getStatusColor(actionItem.status)}>
 			{getStatusText(actionItem.status)}
 		</Badge>
@@ -78,5 +94,6 @@
 		/>
 
 		<Button color="blue" on:click={saveActionItem}>Save Action Item</Button>
+		<Button color="red" outline class="float-right">Delete</Button>
 	</ListgroupItem>
 {/if}
