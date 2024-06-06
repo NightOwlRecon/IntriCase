@@ -1,14 +1,5 @@
 <script lang="ts">
-	import {
-		AccordionItem,
-		Button,
-		Heading,
-		Input,
-		Label,
-		Listgroup,
-		Progressbar,
-		Textarea,
-	} from 'flowbite-svelte';
+	import { Button, Heading, Input, Label, Listgroup, Progressbar, Textarea } from 'flowbite-svelte';
 
 	import Fa from 'svelte-fa';
 	import { faPencil, faPlus } from '@fortawesome/free-solid-svg-icons';
