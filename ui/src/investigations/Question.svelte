@@ -4,7 +4,8 @@
 		Button,
 		Heading,
 		Input,
-		Label, Listgroup,
+		Label,
+		Listgroup,
 		Progressbar,
 		Textarea,
 	} from 'flowbite-svelte';
@@ -35,62 +36,62 @@
 	};
 
 	$: progress =
-		(question.action_items.filter((item) => item.status === 'completed').length / question.action_items.length) * 100;
+		(question.action_items.filter((item) => item.status === 'completed').length /
+			question.action_items.length) *
+		100;
 
-		const saveQuestion = (_e: Event) => {
-			editing = false;
-		}
+	const saveQuestion = (_e: Event) => {
+		editing = false;
+	};
 </script>
 
 {#if !editing}
-	<AccordionItem>
-		<div slot="header" class="flex w-full">
-			<div class="flex-grow">{question.pretty_id}. {question.summary}</div>
-			<Button color="light" on:click={() => editing = true}>Edit <Fa class="inline-block ml-2" icon={faPencil} /></Button>
-
-			{#if progress}
-				<Progressbar
-					{progress}
-					class="mr-4 mt-1 w-48 text-white"
-					color="blue"
-					size="h-4"
-					labelInside
-				/>
-			{/if}
-		</div>
-
-		<p>{question.details}</p>
-
-		{#if question.action_items.length > 0}
-			<Heading tag="h4" class="mt-4 mb-4">Action Items</Heading>
-			<Listgroup>
-				{#each question.action_items as actionItem}
-					<ActionItem bind:actionItem />
-				{/each}
-			</Listgroup>
-		{/if}
-	</AccordionItem>
-{:else if editing}
-	<AccordionItem open>
-		<div slot="header" class="flex w-full">
-			<span>{question.pretty_id}.</span>
-			<div>
-				<Label for="summary">Summary</Label>
-				<Input name="summary" bind:value={question.summary} />
-			</div>
-		</div>
-		<Heading tag="h6" class="mt-4 mb-4">Details</Heading>
-		<Label for="details">Details</Label>
-		<Textarea name="details" rows="8" class="w-full mb-4" bind:value={question.details} />
-		<Button class="float-right" color="green" on:click={addActionItem}>
-			Add Action Item <Fa class="inline-block ml-2" icon={faPlus} />
+	<div class="flex w-full">
+		<div class="flex-grow">{question.pretty_id}. {question.summary}</div>
+		<Button color="light" on:click={() => (editing = true)}>
+			Edit <Fa class="inline-block ml-2" icon={faPencil} />
 		</Button>
-		<Heading tag="h4" class="mb-4">Action Items</Heading>
+
+		{#if progress}
+			<Progressbar
+				{progress}
+				class="mr-4 mt-1 w-48 text-white"
+				color="blue"
+				size="h-4"
+				labelInside
+			/>
+		{/if}
+	</div>
+
+	<p>{question.details}</p>
+
+	{#if question.action_items.length > 0}
+		<Heading tag="h4" class="mt-4 mb-4">Action Items</Heading>
 		<Listgroup>
 			{#each question.action_items as actionItem}
-				<ActionItem {editing} bind:actionItem />
+				<ActionItem bind:actionItem />
 			{/each}
 		</Listgroup>
-		<Button color="blue" on:click={saveQuestion}>Save Question</Button>
-	</AccordionItem>
+	{/if}
+{:else if editing}
+	<div class="flex w-full">
+		<span>{question.pretty_id}.</span>
+		<div>
+			<Label for="summary">Summary</Label>
+			<Input name="summary" bind:value={question.summary} />
+		</div>
+	</div>
+	<Heading tag="h6" class="mt-4 mb-4">Details</Heading>
+	<Label for="details">Details</Label>
+	<Textarea name="details" rows="8" class="w-full mb-4" bind:value={question.details} />
+	<Button class="float-right" color="green" on:click={addActionItem}>
+		Add Action Item <Fa class="inline-block ml-2" icon={faPlus} />
+	</Button>
+	<Heading tag="h4" class="mb-4">Action Items</Heading>
+	<Listgroup>
+		{#each question.action_items as actionItem}
+			<ActionItem {editing} bind:actionItem />
+		{/each}
+	</Listgroup>
+	<Button color="blue" on:click={saveQuestion}>Save Question</Button>
 {/if}
