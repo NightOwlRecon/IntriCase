@@ -94,4 +94,5 @@
 		{/each}
 	</Listgroup>
 	<Button color="blue" on:click={saveQuestion}>Save Question</Button>
+	<Button color="red" outline class="float-right">Delete</Button>
 {/if}
