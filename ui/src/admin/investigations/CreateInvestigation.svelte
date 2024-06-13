@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Heading, Input, Label, Textarea } from 'flowbite-svelte';
+	import { Button, Card, Heading, Input, Label, Textarea } from 'flowbite-svelte';
 
 	import { users } from '../../stores';
 
@@ -260,7 +260,9 @@
 	<Heading tag="h3" class="mb-4">Initial Questions</Heading>
 	<div class="mb-8">
 		{#each newInvestigation.questions as question}
-			<QuestionItem bind:question />
+			<Card class="float-left">
+				<QuestionItem bind:question />
+			</Card>
 		{/each}
 	</div>
 
