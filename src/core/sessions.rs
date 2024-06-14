@@ -1,8 +1,9 @@
 use anyhow::Result;
-use axum::response::{IntoResponse, Redirect};
 use axum::{
     extract::{Request, State},
+    http::StatusCode,
     middleware::Next,
+    response::{IntoResponse, Redirect},
 };
 use axum_extra::extract::{cookie::Cookie, CookieJar, PrivateCookieJar};
 use chrono::{DateTime, Duration, Utc};
@@ -96,6 +97,6 @@ pub async fn session_layer(
     (
         jar.remove(Cookie::build("user_details").path("/")),
         private_jar.remove(Cookie::build("session").path("/")),
-        Redirect::temporary("/").into_response(),
+        StatusCode::UNAUTHORIZED.into_response(),
     )
 }
