@@ -146,14 +146,25 @@
 	// 	console.log(res.json());
 	// };
 
-	const addQuestion = (e: Event) => {
+	const addQuestion = (_e: Event) => {
 		const newQuestion: CreateQuestionDetails = {
 			pretty_id: (newInvestigation.questions.length + 1).toString(),
 			summary: '',
 			details: '',
 			status: '',
 			outcome: '',
-			action_items: [],
+			action_items: [
+				{
+					// TODO: make this pretty id work
+					pretty_id: '1.1',
+					summary: '',
+					status: 'not_started',
+					details: '',
+					outcome: '',
+					assignee: '',
+					resolved: '',
+				},
+			],
 		};
 
 		// we can't just push to the array, because Svelte won't "see" the change
@@ -229,7 +240,7 @@
 			<Label for="internal_id">Internal ID (optional)</Label>
 			<Input id="internal_id" name="internal_id" bind:value={newInvestigation.internal_id} />
 		</div>
-		<div class="">
+		<div>
 			<Label for="namus_id">NamUs ID (optional - MPxxxxx)</Label>
 			<Input
 				id="namus_id"
@@ -258,9 +269,9 @@
 	</Button>
 
 	<Heading tag="h3" class="mb-4">Initial Questions</Heading>
-	<div class="mb-8">
+	<div class="mb-8 flex">
 		{#each newInvestigation.questions as question}
-			<Card class="float-left">
+			<Card>
 				<QuestionItem bind:question />
 			</Card>
 		{/each}
