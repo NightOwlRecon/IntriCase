@@ -25,7 +25,7 @@ tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 ts-rs = { version = "9.0.0", features = ["chrono-impl", "serde-json-impl", "uuid-impl"] }
 url = "2.5.2"
-uuid = { version = "1.8.0", features = ["v4", "macro-diagnostics", "serde", "v7"] }
+uuid = { version = "1.9.0", features = ["v4", "macro-diagnostics", "serde", "v7"] }
 zxcvbn = "3.0.1"
 
 [profile.dev.package.sqlx-macros]
