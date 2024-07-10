@@ -31,5 +31,5 @@ To create a new migration, run `sqlx migrate add <MIGRATION_NAME>`
 
 Routes (using the anchor tag) live in `App.svelte`
 
-TypeScript bindings are generated from Rust structs by running `cargo check`, and live in `ui/src/bindings`.  In the future, these could theoretically follow a similar approach to the back-end instead of being defined in a single place.
+TypeScript bindings are generated from Rust structs by running `cargo check`, and live in `ui/src/bindings`.  In the future, these routes could theoretically follow a similar approach to the back-end instead of being defined in a single place.
 
