@@ -12,7 +12,7 @@ axum = { version = "0.7.5", features = ["form", "http1", "http2", "json", "macro
 axum-extra = { version = "0.9.3", features = ["async-read-body", "cookie", "cookie-key-expansion", "cookie-private", "cookie-signed", "form", "multipart", "query"] }
 chrono = { version = "0.4.38", features = ["serde"] }
 dotenvy = "0.15.7"
-handlebars = { version = "6.1.0", features = ["dir_source"] }
+handlebars = { version = "6.2.0", features = ["dir_source"] }
 lettre = { version = "0.11.10", default-features = false, features = ["builder", "rustls-tls", "smtp-transport", "tokio1", "tokio1-rustls-tls", "tracing"] }
 serde = "1.0.213"
 serde_json = "1.0.132"
