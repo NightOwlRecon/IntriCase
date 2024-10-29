@@ -21,7 +21,7 @@
     "autoprefixer": "^10.4.19",
     "date-fns": "^4.1.0",
     "flowbite": "^2.5.2",
-    "flowbite-svelte": "^0.47.1",
+    "flowbite-svelte": "^0.47.2",
     "postcss": "^8.4.47",
     "postcss-load-config": "^6.0.1",
     "prettier": "^3.3.3",
